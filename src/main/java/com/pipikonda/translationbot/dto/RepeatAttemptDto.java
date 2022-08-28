@@ -3,6 +3,7 @@ package com.pipikonda.translationbot.dto;
 import lombok.Builder;
 import lombok.Value;
 
+import java.util.List;
 import java.util.Set;
 
 @Value
@@ -10,5 +11,5 @@ import java.util.Set;
 public class RepeatAttemptDto {
 
     Long attemptId;
-    Set<String> values;
+    List<String> values;
 }

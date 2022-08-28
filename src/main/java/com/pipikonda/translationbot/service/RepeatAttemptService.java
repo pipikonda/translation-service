@@ -3,6 +3,7 @@ package com.pipikonda.translationbot.service;
 import com.pipikonda.translationbot.domain.Answer;
 import com.pipikonda.translationbot.domain.Repeat;
 import com.pipikonda.translationbot.domain.RepeatAttempt;
+import com.pipikonda.translationbot.dto.RepeatAttemptDto;
 import com.pipikonda.translationbot.error.BasicLogicException;
 import com.pipikonda.translationbot.error.ErrorCode;
 import com.pipikonda.translationbot.repository.AnswerRepository;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -34,7 +36,7 @@ public class RepeatAttemptService {
 
 
     @Transactional
-    public RepeatAttempt createRepeatAttempt(Repeat repeat) {
+    public RepeatAttemptDto createRepeatAttempt(Repeat repeat) {
         repeatRepository.save(repeat.toBuilder()
                 .nextRepeat(getNextRepeatTime(repeat.getId()))
                 .build());
@@ -54,7 +56,17 @@ public class RepeatAttemptService {
                 .mapToObj(translations::get)
                 .toList();
         saveAnswers(randomValues, correctAnswer, repeatAttempt.getId());
-        return repeatAttempt;
+
+        return RepeatAttemptDto.builder()
+                .attemptId(repeatAttempt.getId())
+                .values(mixAnswers(randomValues, correctAnswer))
+                .build();
+    }
+
+    private List<String> mixAnswers(List<String> answers, String correctAnswer) {
+        answers.add(correctAnswer);
+        Collections.shuffle(answers);
+        return answers;
     }
 
     private void saveAnswers(List<String> fakeAnswers, String correctAnswer, Long repeatAttemptId) {
