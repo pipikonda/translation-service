@@ -25,7 +25,6 @@ class WordRepositoryTest extends TestContainerBaseClass {
     @Test
     void testSave() {
         Word word = instance.save(Word.builder()
-                        .translationId(23L)
                 .build());
         assertThat(word.getId()).isNotNull();
     }

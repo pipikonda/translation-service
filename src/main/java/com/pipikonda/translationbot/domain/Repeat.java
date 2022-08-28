@@ -6,26 +6,28 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.Instant;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "repeats")
 @Entity
-@Table(name = "translation_info")
-public class TranslationInfo {
+public class Repeat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Enumerated(EnumType.STRING)
-    private TranslationType type;
+    private Long wordId;
     private String userId;
+    private Lang sourceLang;
+    private Lang targetLang;
+    private Instant lastRepeat;
+    private Instant nextRepeat;
+
 }

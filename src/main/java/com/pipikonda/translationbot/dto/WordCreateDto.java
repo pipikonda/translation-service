@@ -14,7 +14,7 @@ import java.util.Map;
 @Builder
 public class WordCreateDto {
 
-    @NotNull(message = "{custom.message}")
+    @NotNull
     @Size(min = 2)
     Map<Lang, List<String>> translations;
 

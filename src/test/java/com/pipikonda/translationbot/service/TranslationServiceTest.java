@@ -3,9 +3,6 @@ package com.pipikonda.translationbot.service;
 import com.pipikonda.translationbot.TestContainerBaseClass;
 import com.pipikonda.translationbot.domain.Lang;
 import com.pipikonda.translationbot.domain.Translation;
-import com.pipikonda.translationbot.domain.TranslationInfo;
-import com.pipikonda.translationbot.domain.TranslationType;
-import com.pipikonda.translationbot.repository.TranslationInfoRepository;
 import com.pipikonda.translationbot.repository.TranslationRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,14 +24,10 @@ class TranslationServiceTest extends TestContainerBaseClass {
     @Autowired
     private TranslationRepository translationRepository;
 
-    @Autowired
-    private TranslationInfoRepository translationInfoRepository;
-
     @BeforeEach
     @AfterEach
     void clearDb() {
         translationRepository.deleteAll();
-        translationInfoRepository.deleteAll();
     }
 
     @Test
@@ -42,19 +35,10 @@ class TranslationServiceTest extends TestContainerBaseClass {
         Map<Lang, List<String>> translations = Map.of(
                 Lang.RU, List.of("Еда"),
                 Lang.EN, List.of("food", "meal"));
-        String userId = "223897";
 
-        Long actualResult = instance.saveTranslations(translations, userId);
+        instance.saveTranslations(translations, 2223L);
 
         List<Translation> translationResult = translationRepository.findAll();
-
-        assertThat(translationInfoRepository.findById(actualResult)).isPresent()
-                .hasValueSatisfying(e -> assertThat(e)
-                        .isEqualTo(TranslationInfo.builder()
-                                .id(actualResult)
-                                .type(TranslationType.WORD)
-                                .userId(userId)
-                                .build()));
 
         assertThat(translationResult.size()).isEqualTo(3);
 

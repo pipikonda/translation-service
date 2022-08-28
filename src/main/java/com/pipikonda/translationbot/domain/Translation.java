@@ -24,9 +24,10 @@ public class Translation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long translationId;
+    private Long wordId;
     private String value;
 
     @Enumerated(EnumType.STRING)
     private Lang lang;
+    private String userId;
 }

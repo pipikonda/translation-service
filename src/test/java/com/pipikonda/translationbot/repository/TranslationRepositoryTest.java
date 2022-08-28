@@ -28,7 +28,7 @@ class TranslationRepositoryTest extends TestContainerBaseClass {
     @Test
     void testSave() {
         Translation translation = instance.save(Translation.builder()
-                .translationId(22L)
+                .wordId(22L)
                 .value("some translate")
                 .lang(Lang.EN)
                 .build());
@@ -44,7 +44,7 @@ class TranslationRepositoryTest extends TestContainerBaseClass {
     @Test
     void testFindByValueAndLang_shouldReturnEmptyList_whenLangIsNotPresent() {
         Translation translation = instance.save(Translation.builder()
-                .translationId(22L)
+                .wordId(22L)
                 .value("some translate")
                 .lang(Lang.EN)
                 .build());
@@ -54,7 +54,7 @@ class TranslationRepositoryTest extends TestContainerBaseClass {
     @Test
     void testFindByValueAndLang() {
         Translation translation = instance.save(Translation.builder()
-                .translationId(22L)
+                .wordId(22L)
                 .value("some translate")
                 .lang(Lang.EN)
                 .build());
@@ -63,42 +63,42 @@ class TranslationRepositoryTest extends TestContainerBaseClass {
 
     @Test
     void testFindByLangAndTranslationIdIn_shouldReturnEmptyList_whenTableIsEmpty() {
-        assertThat(instance.findByLangAndTranslationIdIn(Lang.EN, List.of(1L, 2L))).isEmpty();
+        assertThat(instance.findByLangAndWordIdIn(Lang.EN, List.of(1L, 2L))).isEmpty();
     }
 
     @Test
     void testFindByLangAndTranslationIdIn_shouldReturnEmptyList_whenInputIdsIsEmpty() {
         Translation translation = instance.save(Translation.builder()
-                .translationId(22L)
+                .wordId(22L)
                 .value("some translate")
                 .lang(Lang.EN)
                 .build());
-        assertThat(instance.findByLangAndTranslationIdIn(Lang.EN, List.of())).isEmpty();
+        assertThat(instance.findByLangAndWordIdIn(Lang.EN, List.of())).isEmpty();
     }
 
     @Test
     void testFindByLangAndTranslationIdIn_shouldReturnEmptyList_whenLangIsDifferent() {
         Translation translation = instance.save(Translation.builder()
-                .translationId(22L)
+                .wordId(22L)
                 .value("some translate")
                 .lang(Lang.EN)
                 .build());
-        assertThat(instance.findByLangAndTranslationIdIn(Lang.RU, List.of(translation.getTranslationId()))).isEmpty();
+        assertThat(instance.findByLangAndWordIdIn(Lang.RU, List.of(translation.getWordId()))).isEmpty();
     }
 
     @Test
     void testFindByLangAndTranslationIdIn() {
         Translation translation1 = instance.save(Translation.builder()
-                .translationId(22L)
+                .wordId(22L)
                 .value("some translate")
                 .lang(Lang.EN)
                 .build());
         Translation translation2 = instance.save(Translation.builder()
-                .translationId(24L)
+                .wordId(24L)
                 .value("some translat2e")
                 .lang(Lang.EN)
                 .build());
-        assertThat(instance.findByLangAndTranslationIdIn(Lang.EN, List.of(translation1.getTranslationId())))
+        assertThat(instance.findByLangAndWordIdIn(Lang.EN, List.of(translation1.getWordId())))
                 .containsOnly(translation1);
     }
 }

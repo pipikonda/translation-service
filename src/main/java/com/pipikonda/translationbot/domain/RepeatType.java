@@ -1,6 +1,7 @@
 package com.pipikonda.translationbot.domain;
 
-public enum TranslationType {
+public enum RepeatType {
 
-    WORD;
+    TRANSLATE_TEST
+
 }

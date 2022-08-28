@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class TranslationBotApplicationTests {
+class TranslationBotApplicationTests extends TestContainerBaseClass {
 
     @Test
     void contextLoads() {
