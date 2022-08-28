@@ -44,12 +44,12 @@ class TranslationServiceTest extends TestContainerBaseClass {
 
         assertThat(translationResult.stream()
                 .filter(e -> Lang.EN == e.getLang())
-                .map(Translation::getValue)
+                .map(Translation::getTextValue)
                 .toList()).containsOnly("food", "meal");
 
         assertThat(translationResult.stream()
                 .filter(e -> Lang.RU == e.getLang())
-                .map(Translation::getValue)
+                .map(Translation::getTextValue)
                 .toList()).containsOnly("Еда");
     }
 }

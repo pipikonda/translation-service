@@ -13,7 +13,7 @@ import javax.persistence.Table;
 import java.time.Instant;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "repeats")

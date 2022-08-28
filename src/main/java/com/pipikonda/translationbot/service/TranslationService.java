@@ -22,7 +22,7 @@ public class TranslationService {
                 .flatMap(e -> e.getValue().stream()
                         .map(v -> Translation.builder()
                                 .lang(e.getKey())
-                                .value(v)
+                                .textValue(v)
                                 .wordId(wordId)
                                 .build()))
                 .toList();

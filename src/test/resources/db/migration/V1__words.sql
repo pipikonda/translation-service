@@ -1,15 +1,15 @@
 create table words
 (
-    id             bigserial primary key
+    id bigserial primary key
 );
 
 create table translations
 (
-    id      bigserial primary key,
-    word_id bigint,
-    value   text,
-    lang    char(2),
-    user_id varchar(50)
+    id         bigserial primary key,
+    word_id    bigint,
+    text_value text,
+    lang       char(2),
+    user_id    varchar(50)
 );
 
 create table repeats
@@ -30,5 +30,14 @@ create table repeat_attempts
     repeat_id      bigint,
     is_success     boolean,
     attempt_time   timestamp,
-    repeat_type    varchar(20)
+    repeat_type    varchar(20),
+    user_answer    text
 );
+
+create table answers
+(
+    id                bigserial primary key,
+    text_value        varchar(50),
+    repeat_attempt_id bigint,
+    is_correct        boolean
+)

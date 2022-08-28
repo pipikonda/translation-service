@@ -25,7 +25,7 @@ public class Translation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long wordId;
-    private String value;
+    private String textValue;
 
     @Enumerated(EnumType.STRING)
     private Lang lang;

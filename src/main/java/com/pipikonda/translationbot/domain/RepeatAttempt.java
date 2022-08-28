@@ -32,4 +32,5 @@ public class RepeatAttempt {
 
     @Enumerated(EnumType.STRING)
     private RepeatType repeatType;
+    private String userAnswer;
 }
