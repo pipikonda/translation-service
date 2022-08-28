@@ -13,9 +13,10 @@ public interface TranslationRepository extends JpaRepository<Translation, Long> 
 
     @Query("select t.wordId from Translation t where t.value = :value and t.lang = :lang " +
             "and (t.userId = :userId or t.userId = '-1')")
-    Set<Long> findUserTranslations(@Param("value") String value, @Param("lang") Lang lang, @Param("userId") String userId);
+    Set<Long> findUserWordsId(@Param("value") String value, @Param("lang") Lang lang, @Param("userId") String userId);
 
-    List<Translation> findByValueAndLang(@Param("value") String value, @Param("lang") Lang lang);
+    @Query("select t.value from Translation t where t.wordId in :wordsId and t.lang = :lang " +
+            "and (t.userId = :userId or t.userId = '-1')")
+    List<String> findUserTranslateByWordIdAndLang(@Param("wordsId") Set<Long> wordsId, @Param("lang") Lang lang, @Param("userId") String userId);
 
-    List<Translation> findByLangAndWordIdIn(Lang lang, List<Long> wordIdList);
 }

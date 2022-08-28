@@ -25,8 +25,7 @@ public class WordController {
 
     @PostMapping("/api/user/word/translate")
     public WordResponseDto translateWord(@Valid @RequestBody WordTranslateDto dto) {
-//        return wordService.getTranslation(dto);
-        return null;
+        return wordService.getTranslation(dto);
     }
 
 }
