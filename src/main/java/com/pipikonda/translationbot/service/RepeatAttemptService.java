@@ -33,7 +33,7 @@ public class RepeatAttemptService {
     private final RepeatAttemptRepository repeatAttemptRepository;
     private final AnswerRepository answerRepository;
     private final SecureRandom secureRandom;
-
+/*
 
     @Transactional
     public RepeatAttemptDto createRepeatAttempt(Repeat repeat) {

@@ -1,64 +1,75 @@
 package com.pipikonda.translationbot.service;
 
-import com.pipikonda.translationbot.domain.Word;
-import com.pipikonda.translationbot.dto.WordCreateDto;
-import com.pipikonda.translationbot.dto.WordResponseDto;
-import com.pipikonda.translationbot.dto.WordTranslateDto;
+import com.pipikonda.translationbot.controller.dto.CreateCustomTranslateDto;
+import com.pipikonda.translationbot.controller.dto.CreateWordDto;
+import com.pipikonda.translationbot.domain.Lang;
+import com.pipikonda.translationbot.domain.Translation;
+import com.pipikonda.translationbot.domain.WordTranslation;
 import com.pipikonda.translationbot.repository.TranslationRepository;
-import com.pipikonda.translationbot.repository.WordRepository;
+import com.pipikonda.translationbot.repository.WordTranslationRepository;
 import com.pipikonda.translationbot.service.http.MyMemoryTranslateClient;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class WordService {
 
-    private final WordRepository wordRepository;
     private final TranslationService translationService;
     private final MyMemoryTranslateClient myMemoryTranslateClient;
     private final TranslationRepository translationRepository;
+    private final WordTranslationRepository wordTranslationRepository;
 
-    @Transactional
-    public Word create(WordCreateDto dto) {
-        Word word = wordRepository.save(Word.builder()
-                .build());
-        translationService.saveTranslations(dto.getTranslations(), word.getId());
-        return word;
+    public List<Translation> getTranslations(CreateWordDto dto) {
+        Translation sourceTranslation = translationService.getTranslationByValue(dto.getWord());
+        log.info("Try to search word {} source lang {} to target lang {}", dto.getWord(), dto.getSourceLang(), dto.getTargetLang());
+        List<Long> targetTranslationsId =
+                wordTranslationRepository.findBySourceTranslationIdAndSourceLangAndTargetLang(
+                                sourceTranslation.getId(), dto.getSourceLang(), dto.getTargetLang()
+                        ).stream()
+                        .map(WordTranslation::getTargetTranslationId)
+                        .toList();
+        if (targetTranslationsId.isEmpty()) {
+            log.debug("targetTranslationsId are empty");
+            targetTranslationsId = translate(dto.getSourceLang(), dto.getTargetLang(), dto.getWord(), sourceTranslation.getId());
+        }
+        log.info("targetTranslationsId ==> {}", targetTranslationsId);
+        return translationRepository.findByIdIn(targetTranslationsId);
     }
 
-    public WordResponseDto getTranslation(WordTranslateDto dto) {
-        dto = dto.toBuilder()
-                .value(dto.getValue().toLowerCase())
-                .build();
-        Set<Long> wordsId = translationRepository.findUserWordsId(dto.getValue(), dto.getSourceLang(), dto.getUserId());
-        List<String> translationValues = translationRepository.findUserTranslateByWordIdAndLang(wordsId, dto.getTargetLang(), dto.getUserId());
+    private List<Long> translate(Lang sourceLang, Lang targetLang, String value, Long sourceTranslationId) {
+        List<String> translatedValues = myMemoryTranslateClient.getTranslation(sourceLang, targetLang, value)
+                .stream()
+                .map(String::toLowerCase)
+                .toList();
+        log.info("Translate {} from {} to {} is {}", value, sourceLang, targetLang, translatedValues);
+        return translatedValues
+                .stream()
+                .map(translationService::getTranslationByValue)
+                .map(e -> wordTranslationRepository.save(WordTranslation.builder()
+                        .sourceTranslationId(sourceTranslationId)
+                        .targetTranslationId(e.getId())
+                        .targetLang(targetLang)
+                        .sourceLang(sourceLang)
+                        .build()))
+                .map(WordTranslation::getTargetTranslationId)
+                .toList();
+    }
 
-        if (!translationValues.isEmpty()) {
-            return WordResponseDto.builder()
-                    .translations(translationValues)
-                    .targetLang(dto.getTargetLang())
-                    .sourceLang(dto.getSourceLang())
-                    .inputValue(dto.getValue())
-                    .build();
-        }
-
-        String externalTranslate = myMemoryTranslateClient.getTranslation(dto.getSourceLang(), dto.getTargetLang(), dto.getValue());
-        Word word = create(WordCreateDto.builder()
-                .userId("-1")
-                .translations(Map.of(dto.getSourceLang(), List.of(dto.getValue()), dto.getTargetLang(), List.of(externalTranslate)))
-                .build());
-        return WordResponseDto.builder()
-                .id(word.getId())
-                .targetLang(dto.getTargetLang())
+    public void createCustomTranslate(CreateCustomTranslateDto dto) {
+        Translation sourceTranslationId = translationService.getTranslationByValue(dto.getSourceValue());
+        Translation targetTranslationId = translationService.getTranslationByValue(dto.getTargetValue());
+        //check if present
+        wordTranslationRepository.save(WordTranslation.builder()
                 .sourceLang(dto.getSourceLang())
-                .inputValue(dto.getValue())
-                .translations(List.of(externalTranslate))
-                .build();
+                .targetLang(dto.getTargetLang())
+                .sourceTranslationId(sourceTranslationId.getId())
+                .targetTranslationId(targetTranslationId.getId())
+                .userId(dto.getUserId())
+                .build());
     }
 }

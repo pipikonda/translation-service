@@ -16,7 +16,7 @@ public class CustomExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(BasicLogicException.class)
     public ErrorResponse handle(BasicLogicException exception) {
-        log.error("Got exception", exception);
+        logException(exception);
         return ErrorResponse.builder()
                 .errorCode(exception.getErrorCode())
                 .errorText(exception.getMessage())
@@ -26,14 +26,18 @@ public class CustomExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ErrorResponse handle(MethodArgumentNotValidException exception) {
-//        log.error("Got validation exception", exception);
-        String errorMessage = exception.getBindingResult().getFieldErrors()
+        logException(exception);
+        String errorMessage = exception.getBindingResult().getAllErrors()
                 .stream()
-                .map(e -> e.getField() + " " + e.getDefaultMessage())
+                .map(e -> e.getObjectName() + " " + e.getDefaultMessage())
                 .collect(Collectors.joining(";"));
         return ErrorResponse.builder()
                 .errorCode(ErrorCode.VALIDATION_ERROR)
                 .errorText(errorMessage)
                 .build();
+    }
+
+    private void logException(Throwable throwable) {
+        log.error("Got exception: ", throwable);
     }
 }

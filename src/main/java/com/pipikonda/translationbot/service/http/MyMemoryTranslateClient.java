@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -32,16 +33,17 @@ public class MyMemoryTranslateClient {
         this.restTemplate = restTemplate;
     }
 
-    public String getTranslation(Lang sourceLang, Lang targetLang, String text) {
+    public List<String> getTranslation(Lang sourceLang, Lang targetLang, String text) {
         ResponseEntity<TranslationResponse> response =
                 restTemplate.exchange(url, HttpMethod.GET, null, TranslationResponse.class, text, getLangPair(sourceLang, targetLang));
-        return Optional.ofNullable(response.getBody())
+        log.info("External API translate response {}", response);
+        return List.of(Optional.ofNullable(response.getBody())
                 .filter(e -> e.getResponseStatus() == 200)
                 .map(e -> e.getResponseData().getTranslatedText())
                 .orElseThrow(() -> {
                     log.info("My memory response code is {} and body is {}", response.getBody().getResponseStatus(), response.getBody());
                     return new BasicLogicException(ErrorCode.UNKNOWN_ERROR, "Unexpected response from get-translation service");
-                });
+                }));
     }
 
     private String getLangPair(Lang sourceLang, Lang targetLang) {

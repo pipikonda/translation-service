@@ -1,15 +1,7 @@
-create table words
-(
-    id bigserial primary key
-);
-
 create table translations
 (
     id         bigserial primary key,
-    word_id    bigint,
-    text_value text,
-    lang       char(2),
-    user_id    varchar(50)
+    text_value text unique
 );
 
 create table repeats
@@ -40,4 +32,14 @@ create table answers
     text_value        varchar(50),
     repeat_attempt_id bigint,
     is_correct        boolean
-)
+);
+
+create table word_translations
+(
+    id                    bigserial primary key,
+    source_translation_id bigint,
+    target_translation_id bigint,
+    source_lang           char(2),
+    target_lang           char(2),
+    user_id               varchar(50)
+);
