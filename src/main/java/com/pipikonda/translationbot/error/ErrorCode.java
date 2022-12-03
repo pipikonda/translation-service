@@ -4,5 +4,6 @@ public enum ErrorCode {
 
     VALIDATION_ERROR,
     NOT_FOUND,
-    UNKNOWN_ERROR
+    UNKNOWN_ERROR,
+    BAD_REQUEST
 }

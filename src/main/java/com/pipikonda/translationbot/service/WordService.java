@@ -5,6 +5,8 @@ import com.pipikonda.translationbot.controller.dto.CreateWordDto;
 import com.pipikonda.translationbot.domain.Lang;
 import com.pipikonda.translationbot.domain.Translation;
 import com.pipikonda.translationbot.domain.WordTranslation;
+import com.pipikonda.translationbot.error.BasicLogicException;
+import com.pipikonda.translationbot.error.ErrorCode;
 import com.pipikonda.translationbot.repository.TranslationRepository;
 import com.pipikonda.translationbot.repository.WordTranslationRepository;
 import com.pipikonda.translationbot.service.http.MyMemoryTranslateClient;
@@ -27,17 +29,24 @@ public class WordService {
     public List<Translation> getTranslations(CreateWordDto dto) {
         Translation sourceTranslation = translationService.getTranslationByValue(dto.getWord());
         log.info("Try to search word {} source lang {} to target lang {}", dto.getWord(), dto.getSourceLang(), dto.getTargetLang());
-        List<Long> targetTranslationsId =
+        List<WordTranslation> translations =
                 wordTranslationRepository.findBySourceTranslationIdAndSourceLangAndTargetLang(
-                                sourceTranslation.getId(), dto.getSourceLang(), dto.getTargetLang()
-                        ).stream()
-                        .map(WordTranslation::getTargetTranslationId)
-                        .toList();
+                        sourceTranslation.getId(), dto.getSourceLang(), dto.getTargetLang()
+                );
+        List<Long> targetTranslationsId = translations.stream()
+                .filter(e -> e.getUserId() == null)
+                .map(WordTranslation::getTargetTranslationId)
+                .toList();
         if (targetTranslationsId.isEmpty()) {
             log.debug("targetTranslationsId are empty");
             targetTranslationsId = translate(dto.getSourceLang(), dto.getTargetLang(), dto.getWord(), sourceTranslation.getId());
         }
         log.info("targetTranslationsId ==> {}", targetTranslationsId);
+        List<Long> userTranslations = translations.stream()
+                .filter(e -> e.getUserId() != null)
+                .map(WordTranslation::getTargetTranslationId)
+                .toList();
+        targetTranslationsId.addAll(userTranslations);
         return translationRepository.findByIdIn(targetTranslationsId);
     }
 
@@ -61,14 +70,19 @@ public class WordService {
     }
 
     public void createCustomTranslate(CreateCustomTranslateDto dto) {
-        Translation sourceTranslationId = translationService.getTranslationByValue(dto.getSourceValue());
-        Translation targetTranslationId = translationService.getTranslationByValue(dto.getTargetValue());
-        //check if present
+        Long sourceTranslationId = translationService.getTranslationByValue(dto.getSourceValue()).getId();
+        Long targetTranslationId = translationService.getTranslationByValue(dto.getTargetValue()).getId();
+        boolean translationExists =
+                wordTranslationRepository.checkCustomTranslation(sourceTranslationId, targetTranslationId,
+                        dto.getSourceLang(), dto.getTargetLang(), dto.getUserId());
+        if (translationExists) {
+            throw new BasicLogicException(ErrorCode.BAD_REQUEST, "Such translation is already present");
+        }
         wordTranslationRepository.save(WordTranslation.builder()
                 .sourceLang(dto.getSourceLang())
                 .targetLang(dto.getTargetLang())
-                .sourceTranslationId(sourceTranslationId.getId())
-                .targetTranslationId(targetTranslationId.getId())
+                .sourceTranslationId(sourceTranslationId)
+                .targetTranslationId(targetTranslationId)
                 .userId(dto.getUserId())
                 .build());
     }

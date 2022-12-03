@@ -1,5 +1,6 @@
 package com.pipikonda.translationbot.controller;
 
+import com.pipikonda.translationbot.controller.dto.CreateCustomTranslateDto;
 import com.pipikonda.translationbot.controller.dto.CreateWordDto;
 import com.pipikonda.translationbot.domain.Translation;
 import com.pipikonda.translationbot.dto.Response;
@@ -24,8 +25,9 @@ public class WordController {
     }
 
     @PostMapping("/api/user/word/custom")
-    public Response<Void> createCustomTranslate() {
-        return null;
+    public Response<String> createCustomTranslate(CreateCustomTranslateDto dto) {
+        wordService.createCustomTranslate(dto);
+        return Response.OK;
     }
 
 }
