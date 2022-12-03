@@ -25,7 +25,7 @@ public class WordController {
     }
 
     @PostMapping("/api/user/word/custom")
-    public Response<String> createCustomTranslate(CreateCustomTranslateDto dto) {
+    public Response<String> createCustomTranslate(@Valid @RequestBody CreateCustomTranslateDto dto) {
         wordService.createCustomTranslate(dto);
         return Response.OK;
     }

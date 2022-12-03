@@ -14,7 +14,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -36,18 +39,25 @@ public class WordService {
         List<Long> targetTranslationsId = translations.stream()
                 .filter(e -> e.getUserId() == null)
                 .map(WordTranslation::getTargetTranslationId)
-                .toList();
+                .collect(Collectors.toList());
         if (targetTranslationsId.isEmpty()) {
             log.debug("targetTranslationsId are empty");
             targetTranslationsId = translate(dto.getSourceLang(), dto.getTargetLang(), dto.getWord(), sourceTranslation.getId());
         }
         log.info("targetTranslationsId ==> {}", targetTranslationsId);
-        List<Long> userTranslations = translations.stream()
-                .filter(e -> e.getUserId() != null)
-                .map(WordTranslation::getTargetTranslationId)
-                .toList();
-        targetTranslationsId.addAll(userTranslations);
-        return translationRepository.findByIdIn(targetTranslationsId);
+
+        List<Long> resultTranslations = targetTranslationsId;
+        Optional.ofNullable(dto.getUserId())
+                .ifPresent(e -> {
+                    List<Long> userTranslations = translations.stream()
+                            .filter(v -> e.equals(v.getUserId()))
+                            .map(WordTranslation::getTargetTranslationId)
+                            .toList();
+
+                    resultTranslations.addAll(userTranslations);
+                });
+
+        return translationRepository.findByIdIn(resultTranslations);
     }
 
     private List<Long> translate(Lang sourceLang, Lang targetLang, String value, Long sourceTranslationId) {
@@ -66,16 +76,16 @@ public class WordService {
                         .sourceLang(sourceLang)
                         .build()))
                 .map(WordTranslation::getTargetTranslationId)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public void createCustomTranslate(CreateCustomTranslateDto dto) {
         Long sourceTranslationId = translationService.getTranslationByValue(dto.getSourceValue()).getId();
         Long targetTranslationId = translationService.getTranslationByValue(dto.getTargetValue()).getId();
-        boolean translationExists =
+        Optional<WordTranslation> translation =
                 wordTranslationRepository.checkCustomTranslation(sourceTranslationId, targetTranslationId,
                         dto.getSourceLang(), dto.getTargetLang(), dto.getUserId());
-        if (translationExists) {
+        if (translation.isPresent()) {
             throw new BasicLogicException(ErrorCode.BAD_REQUEST, "Such translation is already present");
         }
         wordTranslationRepository.save(WordTranslation.builder()

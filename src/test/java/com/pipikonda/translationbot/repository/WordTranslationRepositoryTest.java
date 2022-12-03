@@ -34,4 +34,48 @@ public class WordTranslationRepositoryTest extends TestContainerBaseClass {
         assertThat(instance.findById(wordTranslation.getId())).isPresent()
                 .hasValueSatisfying(e -> assertThat(e).isEqualTo(wordTranslation));
     }
+
+    @Test
+    void testCheckCustomTranslation_shouldReturnFalse_whenTranslationIsNotPresent() {
+        assertThat(instance.checkCustomTranslation(22L, 45L, Lang.RU, Lang.EN, "qwe")).isEmpty();
+    }
+
+    @Test
+    void testCheckCustomTranslation_shouldReturnFalse_whenUserIdIsNull() {
+        WordTranslation wordTranslation = instance.save(WordTranslation.builder()
+                .sourceTranslationId(22L)
+                .targetTranslationId(45L)
+                .sourceLang(Lang.RU)
+                .targetLang(Lang.EN)
+                .build());
+
+        assertThat(instance.checkCustomTranslation(22L, 45L, Lang.RU, Lang.EN, "qwe")).isEmpty();
+    }
+
+    @Test
+    void testCheckCustomTranslation_shouldReturnFalse_whenUserIdIsNotEqualInput() {
+        WordTranslation wordTranslation = instance.save(WordTranslation.builder()
+                .sourceTranslationId(22L)
+                .targetTranslationId(45L)
+                .sourceLang(Lang.RU)
+                .targetLang(Lang.EN)
+                        .userId("qwe123")
+                .build());
+
+        assertThat(instance.checkCustomTranslation(22L, 45L, Lang.RU, Lang.EN, "qwe")).isEmpty();
+    }
+
+    @Test
+    void testCheckCustomTranslation() {
+        WordTranslation wordTranslation = instance.save(WordTranslation.builder()
+                .sourceTranslationId(22L)
+                .targetTranslationId(45L)
+                .sourceLang(Lang.RU)
+                .targetLang(Lang.EN)
+                .userId("qwe")
+                .build());
+
+        assertThat(instance.checkCustomTranslation(22L, 45L, Lang.RU, Lang.EN, "qwe")).isPresent()
+                .hasValueSatisfying(e -> assertThat(e).isEqualTo(wordTranslation));
+    }
 }

@@ -8,7 +8,6 @@ import lombok.extern.jackson.Jacksonized;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @Builder
 @Value
@@ -25,5 +24,6 @@ public class CreateWordDto {
     @NotNull
     Lang targetLang;
 
-    List<String> translations;
+    String userId;
+
 }

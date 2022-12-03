@@ -7,17 +7,19 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface WordTranslationRepository extends JpaRepository<WordTranslation, Long> {
 
     List<WordTranslation> findBySourceTranslationIdAndSourceLangAndTargetLang(Long translationId, Lang sourceLang, Lang targetLang);
 
-    @Query(value = "select exists (select 1 from word_translations where source_translation_id = :sourceTranslationId and " +
-            "target_translation_id = :targetTranslationId and source_lang = :sourceLang and target_lang = :targetLang and " +
-            "user_id = :userId)", nativeQuery = true)
-    boolean checkCustomTranslation(@Param("sourceTranslationId") Long sourceId,
-                                                     @Param("targetTranslationId") Long targetId,
-                                                     @Param("sourceLang") Lang sourceLang,
-                                                     @Param("targetLang") Lang targetLang,
-                                                     @Param("userId") String userId);
+    @Query("select wt from WordTranslation wt where " +
+            "wt.sourceTranslationId = :sourceTranslationId and wt.targetTranslationId = :targetTranslationId and " +
+            "wt.targetLang = :targetLang and wt.sourceLang = :sourceLang and " +
+            "wt.userId = :userId")
+    Optional<WordTranslation> checkCustomTranslation(@Param("sourceTranslationId") Long sourceId,
+                                    @Param("targetTranslationId") Long targetId,
+                                    @Param("sourceLang") Lang sourceLang,
+                                    @Param("targetLang") Lang targetLang,
+                                    @Param("userId") String userId);
 }
