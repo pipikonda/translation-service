@@ -10,6 +10,7 @@ import java.time.Duration;
 @Configuration
 public class RestTemplateConfiguration {
 
+    //change to webclient
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplateBuilder()

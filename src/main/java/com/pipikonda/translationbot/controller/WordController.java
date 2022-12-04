@@ -3,7 +3,7 @@ package com.pipikonda.translationbot.controller;
 import com.pipikonda.translationbot.controller.dto.CreateCustomTranslateDto;
 import com.pipikonda.translationbot.controller.dto.CreateWordDto;
 import com.pipikonda.translationbot.domain.Translation;
-import com.pipikonda.translationbot.dto.Response;
+import com.pipikonda.translationbot.controller.dto.Response;
 import com.pipikonda.translationbot.service.WordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
