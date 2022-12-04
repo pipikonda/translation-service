@@ -24,6 +24,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -55,11 +56,11 @@ public class RepeatAttemptService {
                                 .orElse(1)
                 ).build());
 
-        WordTranslation wordTranslation = wordTranslationRepository.findById(repeat.getId())
+        WordTranslation wordTranslation = wordTranslationRepository.findById(repeat.getWordTranslationId())
                 .orElseThrow(() -> new BasicLogicException(ErrorCode.UNKNOWN_ERROR, "Not found wordTranslation when expected"));
         Translation correctAnswer = translationRepository.findById(wordTranslation.getTargetTranslationId())
                 .orElseThrow(() -> new BasicLogicException(ErrorCode.UNKNOWN_ERROR,
-                        "Not found correct translation for source translation id " + wordTranslation.getSourceTranslationId()));
+                        "Not found correct translation for source translation id " + wordTranslation.getTargetTranslationId()));
         List<Translation> fakeAnswers = getFakeAnswers(wordTranslation.getTargetLang(), wordTranslation.getTargetTranslationId());
         saveAnswers(fakeAnswers, correctAnswer, repeatAttempt.getId());
 
@@ -74,7 +75,7 @@ public class RepeatAttemptService {
         List<Translation> fakeAnswers = translationRepository.findAllById(fakeAnswersId);
         return secureRandom.ints(fakeAnswersCount, 0, fakeAnswers.size())
                 .mapToObj(fakeAnswers::get)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     private List<String> mixAnswers(List<Translation> answers, Translation correctAnswer) {

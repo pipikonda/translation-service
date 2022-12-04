@@ -25,7 +25,7 @@ public class AnswerRepositoryTest extends TestContainerBaseClass {
     @Test
     void testSave() {
         Answer answer = instance.save(Answer.builder()
-                        .textValue("2222L")
+                        .translationValueId(2222L)
                         .isCorrect(false)
                         .repeatAttemptId(14L)
                 .build());
@@ -35,17 +35,17 @@ public class AnswerRepositoryTest extends TestContainerBaseClass {
     @Test
     void testFindByRepeatAttemptId() {
         Answer answer1 = instance.save(Answer.builder()
-                .textValue("2222L")
+                .translationValueId(2222L)
                 .isCorrect(false)
                 .repeatAttemptId(14L)
                 .build());
         Answer answer2 = instance.save(Answer.builder()
-                .textValue("2227L")
+                .translationValueId(2227L)
                 .isCorrect(true)
                 .repeatAttemptId(14L)
                 .build());
         Answer answer3 = instance.save(Answer.builder()
-                .textValue("2216L")
+                .translationValueId(2216L)
                 .isCorrect(false)
                 .repeatAttemptId(15L)
                 .build());
@@ -60,7 +60,7 @@ public class AnswerRepositoryTest extends TestContainerBaseClass {
     @Test
     void testFindByRepeatAttemptId_shouldReturnEmpty_whenAttemptIdIsNotExists() {
         Answer answer3 = instance.save(Answer.builder()
-                .textValue("2216L")
+                .translationValueId(2216L)
                 .isCorrect(false)
                 .repeatAttemptId(15L)
                 .build());

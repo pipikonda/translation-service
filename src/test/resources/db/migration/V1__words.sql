@@ -36,8 +36,8 @@ create table repeat_attempts
 
 create table answers
 (
-    id                bigserial primary key,
-    text_value        bigint,
-    repeat_attempt_id bigint,
-    is_correct        boolean
+    id                          bigserial primary key,
+    translation_value_id        bigint,
+    repeat_attempt_id           bigint,
+    is_correct                  boolean
 );
