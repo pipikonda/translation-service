@@ -57,7 +57,7 @@ public class WordService {
                     resultTranslations.addAll(userTranslations);
                 });
 
-        return translationRepository.findByIdIn(resultTranslations);
+        return translationRepository.findAllById(resultTranslations);
     }
 
     private List<Long> translate(Lang sourceLang, Lang targetLang, String value, Long sourceTranslationId) {

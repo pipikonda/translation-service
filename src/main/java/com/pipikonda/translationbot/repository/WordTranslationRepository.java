@@ -22,4 +22,9 @@ public interface WordTranslationRepository extends JpaRepository<WordTranslation
                                     @Param("sourceLang") Lang sourceLang,
                                     @Param("targetLang") Lang targetLang,
                                     @Param("userId") String userId);
+
+    @Query("select wt.targetTranslationId from WordTranslation wt where wt.targetLang = :targetLang and " +
+            "wt.targetTranslationId <> :correctAnswerId")
+    List<Long> getFakeAnswersId(@Param("targetLang") Lang targetLang,
+                                @Param("correctAnswerId") Long correctAnswerId);
 }

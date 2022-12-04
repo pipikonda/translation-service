@@ -1,7 +1,7 @@
 package com.pipikonda.translationbot.service;
 
 import com.pipikonda.translationbot.domain.Repeat;
-import com.pipikonda.translationbot.dto.CreateRepeatDto;
+import com.pipikonda.translationbot.controller.dto.CreateRepeatDto;
 import com.pipikonda.translationbot.repository.RepeatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,16 +19,12 @@ public class RepeatService {
                 dto.getImmediatelyRepeat() ?
                         Instant.now() :
                         Instant.now().plus(RepeatAttemptService.baseRepeatInterval, RepeatAttemptService.repeatIntervalUnit);
-        //todo if immediatelyRepeat -> call async method
+        //todo if immediatelyRepeat -> call poll async
 
         return repeatRepository.save(Repeat.builder()
-                .wordId(dto.getWord().getId())
                 .userId(dto.getUserId())
-                .sourceLang(dto.getSourceLang())
-                .targetLang(dto.getTargetLang())
                 .nextRepeat(nextRepeat)
+                .wordTranslationId(dto.getWordTranslationId())
                 .build());
     }
-
-
 }

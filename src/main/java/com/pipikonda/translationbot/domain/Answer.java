@@ -21,8 +21,8 @@ public class Answer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
-    String textValue;
-    Long repeatAttemptId;
+    private Long id;
+    private Long translationValueId;
+    private Long repeatAttemptId;
     boolean isCorrect;
 }

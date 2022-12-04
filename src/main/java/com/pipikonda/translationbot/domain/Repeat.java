@@ -23,10 +23,8 @@ public class Repeat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long wordId;
+    private Long wordTranslationId;
     private String userId;
-    private Lang sourceLang;
-    private Lang targetLang;
     private Instant lastRepeat;
     private Instant nextRepeat;
 

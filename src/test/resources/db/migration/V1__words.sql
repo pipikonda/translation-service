@@ -4,15 +4,23 @@ create table translations
     text_value text unique
 );
 
+create table word_translations
+(
+    id                    bigserial primary key,
+    source_translation_id bigint,
+    target_translation_id bigint,
+    source_lang           char(2),
+    target_lang           char(2),
+    user_id               varchar(50)
+);
+
 create table repeats
 (
-    id          bigserial primary key,
-    word_id     bigint,
-    user_id     varchar(50),
-    source_lang char(2),
-    target_lang char(2),
-    last_repeat timestamp,
-    next_repeat timestamp
+    id                      bigserial primary key,
+    word_translation_id     bigint,
+    user_id                 varchar(50),
+    last_repeat             timestamp,
+    next_repeat             timestamp
 );
 
 create table repeat_attempts
@@ -29,17 +37,7 @@ create table repeat_attempts
 create table answers
 (
     id                bigserial primary key,
-    text_value        varchar(50),
+    text_value        bigint,
     repeat_attempt_id bigint,
     is_correct        boolean
-);
-
-create table word_translations
-(
-    id                    bigserial primary key,
-    source_translation_id bigint,
-    target_translation_id bigint,
-    source_lang           char(2),
-    target_lang           char(2),
-    user_id               varchar(50)
 );
