@@ -11,7 +11,8 @@ create table word_translations
     target_translation_id bigint,
     source_lang           char(2),
     target_lang           char(2),
-    user_id               varchar(50)
+    user_id               varchar(50),
+    constraint uni_source_to_target_translation unique (source_translation_id, target_translation_id, source_lang, target_lang, user_id)
 );
 
 create table repeats
@@ -20,7 +21,8 @@ create table repeats
     word_translation_id     bigint,
     user_id                 varchar(50),
     last_repeat             timestamp,
-    next_repeat             timestamp
+    next_repeat             timestamp,
+    constraint uni_word_translation_user_id unique (user_id, word_translation_id)
 );
 
 create table repeat_attempts

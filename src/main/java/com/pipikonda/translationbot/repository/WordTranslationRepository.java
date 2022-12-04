@@ -13,6 +13,9 @@ public interface WordTranslationRepository extends JpaRepository<WordTranslation
 
     List<WordTranslation> findBySourceTranslationIdAndSourceLangAndTargetLang(Long translationId, Lang sourceLang, Lang targetLang);
 
+    @Query("select wt from WordTranslation wt where wt.id = :id and (wt.userId = :userId or wt.userId is null)")
+    Optional<WordTranslation> findByIdAndUserId(@Param("id") Long id, @Param("userId") String userId);
+
     @Query("select wt from WordTranslation wt where " +
             "wt.sourceTranslationId = :sourceTranslationId and wt.targetTranslationId = :targetTranslationId and " +
             "wt.targetLang = :targetLang and wt.sourceLang = :sourceLang and " +
@@ -24,7 +27,8 @@ public interface WordTranslationRepository extends JpaRepository<WordTranslation
                                     @Param("userId") String userId);
 
     @Query("select wt.targetTranslationId from WordTranslation wt where wt.targetLang = :targetLang and " +
-            "wt.targetTranslationId <> :correctAnswerId")
+            "wt.targetTranslationId <> :correctAnswerId and (wt.userId is null or wt.userId = :userId)")
     List<Long> getFakeAnswersId(@Param("targetLang") Lang targetLang,
-                                @Param("correctAnswerId") Long correctAnswerId);
+                                @Param("correctAnswerId") Long correctAnswerId,
+                                @Param("userId") String userId);
 }

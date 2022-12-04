@@ -8,6 +8,7 @@ import com.pipikonda.translationbot.domain.RepeatAttempt;
 import com.pipikonda.translationbot.domain.Translation;
 import com.pipikonda.translationbot.domain.WordTranslation;
 import com.pipikonda.translationbot.error.BasicLogicException;
+import com.pipikonda.translationbot.repository.AnswerRepository;
 import com.pipikonda.translationbot.repository.RepeatAttemptRepository;
 import com.pipikonda.translationbot.repository.RepeatRepository;
 import com.pipikonda.translationbot.repository.TranslationRepository;
@@ -41,6 +42,9 @@ class RepeatAttemptServiceTest extends TestContainerBaseClass {
     @Autowired
     private RepeatAttemptRepository repeatAttemptRepository;
 
+    @Autowired
+    private AnswerRepository answerRepository;
+
     @BeforeEach
     @AfterEach
     void clearDb() {
@@ -48,6 +52,7 @@ class RepeatAttemptServiceTest extends TestContainerBaseClass {
         translationRepository.deleteAll();
         wordTranslationRepository.deleteAll();
         repeatAttemptRepository.deleteAll();
+        answerRepository.deleteAll();
     }
 
     @Test

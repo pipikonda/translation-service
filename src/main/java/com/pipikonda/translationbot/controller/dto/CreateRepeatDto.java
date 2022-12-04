@@ -15,5 +15,7 @@ public class CreateRepeatDto {
 
     @NotBlank
     String userId;
+
+    @NotNull
     Boolean immediatelyRepeat;
 }

@@ -59,7 +59,7 @@ public class WordTranslationRepositoryTest extends TestContainerBaseClass {
                 .targetTranslationId(45L)
                 .sourceLang(Lang.RU)
                 .targetLang(Lang.EN)
-                        .userId("qwe123")
+                .userId("qwe123")
                 .build());
 
         assertThat(instance.checkCustomTranslation(22L, 45L, Lang.RU, Lang.EN, "qwe")).isEmpty();
@@ -88,7 +88,7 @@ public class WordTranslationRepositoryTest extends TestContainerBaseClass {
                 .targetLang(Lang.UK)
                 .build());
 
-        assertThat(instance.getFakeAnswersId(Lang.EN, 2L)).isEmpty();
+        assertThat(instance.getFakeAnswersId(Lang.EN, 2L, "qwe")).isEmpty();
     }
 
     @Test
@@ -100,11 +100,11 @@ public class WordTranslationRepositoryTest extends TestContainerBaseClass {
                 .targetLang(Lang.EN)
                 .build());
 
-        assertThat(instance.getFakeAnswersId(Lang.EN, 2L)).isEmpty();
+        assertThat(instance.getFakeAnswersId(Lang.EN, 2L, "qwe")).isEmpty();
     }
 
     @Test
-    void testGetFakeAnswersId() {
+    void testGetFakeAnswersId_shouldReturnResult_whenUserIdIsNull() {
         WordTranslation wordTranslation = instance.save(WordTranslation.builder()
                 .sourceTranslationId(22L)
                 .targetTranslationId(27L)
@@ -112,7 +112,73 @@ public class WordTranslationRepositoryTest extends TestContainerBaseClass {
                 .targetLang(Lang.EN)
                 .build());
 
-        assertThat(instance.getFakeAnswersId(Lang.EN, 2L))
+        assertThat(instance.getFakeAnswersId(Lang.EN, 2L, "qwe"))
                 .containsOnly(wordTranslation.getTargetTranslationId());
+    }
+
+    @Test
+    void testGetFakeAnswersId_shouldReturnResult_whenUserIdIsEqual() {
+        WordTranslation wordTranslation = instance.save(WordTranslation.builder()
+                .sourceTranslationId(22L)
+                .targetTranslationId(27L)
+                .sourceLang(Lang.RU)
+                .targetLang(Lang.EN)
+                .userId("qwe")
+                .build());
+
+        assertThat(instance.getFakeAnswersId(Lang.EN, 2L, "qwe"))
+                .containsOnly(wordTranslation.getTargetTranslationId());
+    }
+
+    @Test
+    void findByIdAndUserId_shouldReturnEmpty_whenWordTranslationIsNotPresent() {
+        WordTranslation wordTranslation = instance.save(WordTranslation.builder()
+                .sourceTranslationId(23L)
+                .targetTranslationId(12L)
+                .sourceLang(Lang.EN)
+                .targetLang(Lang.RU)
+                .build());
+
+        assertThat(instance.findByIdAndUserId(-1L, "qwe")).isEmpty();
+    }
+
+    @Test
+    void findByIdAndUserId_shouldReturnEmpty_whenUserIdIsNotEqual() {
+        WordTranslation wordTranslation = instance.save(WordTranslation.builder()
+                .sourceTranslationId(23L)
+                .targetTranslationId(12L)
+                .sourceLang(Lang.EN)
+                .targetLang(Lang.RU)
+                .userId("asd")
+                .build());
+
+        assertThat(instance.findByIdAndUserId(wordTranslation.getId(), "qwe")).isEmpty();
+    }
+
+    @Test
+    void findByIdAndUserId_shouldReturnResult_whenUserIdIsNull() {
+        WordTranslation wordTranslation = instance.save(WordTranslation.builder()
+                .sourceTranslationId(23L)
+                .targetTranslationId(12L)
+                .sourceLang(Lang.EN)
+                .targetLang(Lang.RU)
+                .build());
+
+        assertThat(instance.findByIdAndUserId(wordTranslation.getId(), "qwe")).isPresent()
+                .hasValueSatisfying(e -> assertThat(e).isEqualTo(wordTranslation));
+    }
+
+    @Test
+    void findByIdAndUserId_shouldReturnResult_whenUserIdIsEqual() {
+        WordTranslation wordTranslation = instance.save(WordTranslation.builder()
+                .sourceTranslationId(23L)
+                .targetTranslationId(12L)
+                .sourceLang(Lang.EN)
+                .targetLang(Lang.RU)
+                .userId("qwe")
+                .build());
+
+        assertThat(instance.findByIdAndUserId(wordTranslation.getId(), "qwe")).isPresent()
+                .hasValueSatisfying(e -> assertThat(e).isEqualTo(wordTranslation));
     }
 }

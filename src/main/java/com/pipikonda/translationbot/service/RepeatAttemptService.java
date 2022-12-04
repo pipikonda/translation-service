@@ -56,12 +56,12 @@ public class RepeatAttemptService {
                                 .orElse(1)
                 ).build());
 
-        WordTranslation wordTranslation = wordTranslationRepository.findById(repeat.getWordTranslationId())
+        WordTranslation wordTranslation = wordTranslationRepository.findByIdAndUserId(repeat.getWordTranslationId(), repeat.getUserId())
                 .orElseThrow(() -> new BasicLogicException(ErrorCode.UNKNOWN_ERROR, "Not found wordTranslation when expected"));
         Translation correctAnswer = translationRepository.findById(wordTranslation.getTargetTranslationId())
                 .orElseThrow(() -> new BasicLogicException(ErrorCode.UNKNOWN_ERROR,
                         "Not found correct translation for source translation id " + wordTranslation.getTargetTranslationId()));
-        List<Translation> fakeAnswers = getFakeAnswers(wordTranslation.getTargetLang(), wordTranslation.getTargetTranslationId());
+        List<Translation> fakeAnswers = getFakeAnswers(wordTranslation.getTargetLang(), wordTranslation.getTargetTranslationId(), repeat.getUserId());
         saveAnswers(fakeAnswers, correctAnswer, repeatAttempt.getId());
 
         return RepeatAttemptDto.builder()
@@ -70,8 +70,8 @@ public class RepeatAttemptService {
                 .build();
     }
 
-    private List<Translation> getFakeAnswers(Lang targetLang, Long correctTranslationId) {
-        List<Long> fakeAnswersId = wordTranslationRepository.getFakeAnswersId(targetLang, correctTranslationId);
+    private List<Translation> getFakeAnswers(Lang targetLang, Long correctTranslationId, String userId) {
+        List<Long> fakeAnswersId = wordTranslationRepository.getFakeAnswersId(targetLang, correctTranslationId, userId);
         List<Translation> fakeAnswers = translationRepository.findAllById(fakeAnswersId);
         return secureRandom.ints(fakeAnswersCount, 0, fakeAnswers.size())
                 .mapToObj(fakeAnswers::get)
