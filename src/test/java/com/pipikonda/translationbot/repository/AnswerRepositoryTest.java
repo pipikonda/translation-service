@@ -33,37 +33,28 @@ public class AnswerRepositoryTest extends TestContainerBaseClass {
     }
 
     @Test
-    void testFindByRepeatAttemptId() {
-        Answer answer1 = instance.save(Answer.builder()
+    void findByRepeatAttemptIdAndTranslationValueIdAndCorrectIsTrue_shouldReturnEmpty_whenTableEmpty() {
+        assertThat(instance.findByRepeatAttemptIdAndTranslationValueIdAndIsCorrectIsTrue(23L, 11L)).isEmpty();
+    }
+
+    @Test
+    void findByRepeatAttemptIdAndTranslationValueIdAndCorrectIsTrue_shouldReturnEmpty_whenCorrectIsFalse() {
+        Answer answer = instance.save(Answer.builder()
                 .translationValueId(2222L)
                 .isCorrect(false)
                 .repeatAttemptId(14L)
                 .build());
-        Answer answer2 = instance.save(Answer.builder()
-                .translationValueId(2227L)
+        assertThat(instance.findByRepeatAttemptIdAndTranslationValueIdAndIsCorrectIsTrue(14L, 2222L)).isEmpty();
+    }
+
+    @Test
+    void findByRepeatAttemptIdAndTranslationValueIdAndCorrectIsTrue() {
+        Answer answer = instance.save(Answer.builder()
+                .translationValueId(2222L)
                 .isCorrect(true)
                 .repeatAttemptId(14L)
                 .build());
-        Answer answer3 = instance.save(Answer.builder()
-                .translationValueId(2216L)
-                .isCorrect(false)
-                .repeatAttemptId(15L)
-                .build());
-        assertThat(instance.findByRepeatAttemptId(14L)).containsOnly(answer2, answer1);
-    }
-
-    @Test
-    void testFindByRepeatAttemptId_shouldReturnEmpty_whenTableIsEmpty() {
-        assertThat(instance.findByRepeatAttemptId(14L)).isEmpty();
-    }
-
-    @Test
-    void testFindByRepeatAttemptId_shouldReturnEmpty_whenAttemptIdIsNotExists() {
-        Answer answer3 = instance.save(Answer.builder()
-                .translationValueId(2216L)
-                .isCorrect(false)
-                .repeatAttemptId(15L)
-                .build());
-        assertThat(instance.findByRepeatAttemptId(14L)).isEmpty();
+        assertThat(instance.findByRepeatAttemptIdAndTranslationValueIdAndIsCorrectIsTrue(14L, 2222L)).isPresent()
+                .hasValueSatisfying(e -> assertThat(e).isEqualTo(answer));
     }
 }

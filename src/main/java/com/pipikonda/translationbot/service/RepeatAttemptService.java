@@ -4,6 +4,7 @@ import com.pipikonda.translationbot.domain.Answer;
 import com.pipikonda.translationbot.domain.Lang;
 import com.pipikonda.translationbot.domain.Repeat;
 import com.pipikonda.translationbot.domain.RepeatAttempt;
+import com.pipikonda.translationbot.domain.RepeatType;
 import com.pipikonda.translationbot.domain.Translation;
 import com.pipikonda.translationbot.domain.WordTranslation;
 import com.pipikonda.translationbot.controller.dto.RepeatAttemptDto;
@@ -39,6 +40,23 @@ public class RepeatAttemptService {
     private final AnswerRepository answerRepository;
     private final SecureRandom secureRandom;
     private final WordTranslationRepository wordTranslationRepository;
+    private final TranslationService translationService;
+
+    @Transactional
+    public boolean saveAnswer(Long repeatAttemptId, String answer) {
+        RepeatAttempt repeatAttempt = repeatAttemptRepository.findById(repeatAttemptId)
+                .orElseThrow(() -> new BasicLogicException(ErrorCode.NOT_FOUND, "Not found repeat attempt with id " + repeatAttemptId));
+        Long answerId = translationService.getTranslationByValue(answer).getId();
+        boolean isAnswerCorrect =
+                answerRepository.findByRepeatAttemptIdAndTranslationValueIdAndIsCorrectIsTrue(repeatAttemptId, answerId)
+                        .isPresent();
+        repeatAttemptRepository.save(repeatAttempt.toBuilder()
+                        .userAnswer(answer)
+                        .attemptTime(Instant.now())
+                        .isSuccess(isAnswerCorrect)
+                .build());
+        return isAnswerCorrect;
+    }
 
     @Transactional
     public RepeatAttemptDto createRepeatAttempt(Long repeatId) {
@@ -50,6 +68,7 @@ public class RepeatAttemptService {
         Integer attemptNumber = repeatAttemptRepository.findMaxAttemptNumberByRepeatId(repeat.getId());
         RepeatAttempt repeatAttempt = repeatAttemptRepository.save(RepeatAttempt.builder()
                 .repeatId(repeat.getId())
+                .repeatType(RepeatType.TRANSLATE_TEST)
                 .attemptNumber(
                         Optional.ofNullable(attemptNumber)
                                 .map(e -> ++e)

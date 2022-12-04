@@ -2,15 +2,17 @@ package com.pipikonda.translationbot.controller.dto;
 
 import lombok.Builder;
 import lombok.Value;
-import lombok.extern.jackson.Jacksonized;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Builder
 @Value
-@Jacksonized
-public class CreateRepeatAttemptDto {
+public class SaveRepeatAnswerDto {
 
     @NotNull
-    Long repeatId;
+    Long repeatAttemptId;
+
+    @NotBlank
+    String answer;
 }

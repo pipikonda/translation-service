@@ -26,7 +26,7 @@ public class RepeatService {
         repeatRepository.findByUserIdAndWordTranslationId(dto.getUserId(), dto.getWordTranslationId())
                 .ifPresent(e -> {
                     throw new BasicLogicException(ErrorCode.BAD_REQUEST,
-                            "Repeat with userId " + dto.getUserId() + "and " + dto.getWordTranslationId() + " is already exists");
+                            "Repeat with userId " + dto.getUserId() + " and  wordTranslationId " + dto.getWordTranslationId() + " is already exists");
                 });
 
         return repeatRepository.save(Repeat.builder()

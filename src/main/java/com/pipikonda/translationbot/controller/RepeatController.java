@@ -3,6 +3,7 @@ package com.pipikonda.translationbot.controller;
 import com.pipikonda.translationbot.controller.dto.CreateRepeatAttemptDto;
 import com.pipikonda.translationbot.controller.dto.CreateRepeatDto;
 import com.pipikonda.translationbot.controller.dto.RepeatAttemptDto;
+import com.pipikonda.translationbot.controller.dto.SaveRepeatAnswerDto;
 import com.pipikonda.translationbot.domain.Repeat;
 import com.pipikonda.translationbot.dto.Response;
 import com.pipikonda.translationbot.service.RepeatAttemptService;
@@ -29,5 +30,10 @@ public class RepeatController {
     @PostMapping("/api/user/repeat/attempt")
     public Response<RepeatAttemptDto> createRepeatAttempt(@Valid @RequestBody CreateRepeatAttemptDto dto) {
         return new Response<>(repeatAttemptService.createRepeatAttempt(dto.getRepeatId()));
+    }
+
+    @PostMapping("/api/user/repeat/attempt/answer")
+    public Response<Boolean> answer(@Valid @RequestBody SaveRepeatAnswerDto dto) {
+        return new Response<>(repeatAttemptService.saveAnswer(dto.getRepeatAttemptId(), dto.getAnswer()));
     }
 }
