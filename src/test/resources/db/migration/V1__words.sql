@@ -27,13 +27,13 @@ create table repeats
 
 create table repeat_attempts
 (
-    id             bigserial primary key,
-    attempt_number int,
-    repeat_id      bigint,
-    is_success     boolean,
-    attempt_time   timestamp,
-    repeat_type    varchar(20),
-    user_answer    text
+    id                  bigserial primary key,
+    attempt_number      int,
+    repeat_id           bigint,
+    is_success          boolean,
+    attempt_time        timestamp,
+    repeat_type         varchar(20),
+    user_answer_id      bigint
 );
 
 create table answers

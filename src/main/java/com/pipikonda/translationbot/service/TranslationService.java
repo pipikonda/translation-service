@@ -17,13 +17,14 @@ public class TranslationService {
 
     @Transactional
     public Translation getTranslationByValue(String value) {
+        String lowerCaseValue = value.toLowerCase().trim();
         try {
-            return translationRepository.findByTextValue(value)
+            return translationRepository.findByTextValue(lowerCaseValue)
                     .orElseGet(() -> translationRepository.save(Translation.builder()
-                            .textValue(value)
+                            .textValue(lowerCaseValue)
                             .build()));
         } catch (ConstraintViolationException e) {
-            return translationRepository.findByTextValue(value)
+            return translationRepository.findByTextValue(lowerCaseValue)
                     .orElseThrow(() -> new BasicLogicException(ErrorCode.UNKNOWN_ERROR, "Not found translation value when expected"));
         }
     }

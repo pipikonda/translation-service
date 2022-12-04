@@ -46,12 +46,15 @@ public class RepeatAttemptService {
     public boolean saveAnswer(Long repeatAttemptId, String answer) {
         RepeatAttempt repeatAttempt = repeatAttemptRepository.findById(repeatAttemptId)
                 .orElseThrow(() -> new BasicLogicException(ErrorCode.NOT_FOUND, "Not found repeat attempt with id " + repeatAttemptId));
+        if (repeatAttempt.getUserAnswerId() != null) {
+            throw new BasicLogicException(ErrorCode.BAD_REQUEST, "Attempt already has answer");
+        }
         Long answerId = translationService.getTranslationByValue(answer).getId();
         boolean isAnswerCorrect =
                 answerRepository.findByRepeatAttemptIdAndTranslationValueIdAndIsCorrectIsTrue(repeatAttemptId, answerId)
                         .isPresent();
         repeatAttemptRepository.save(repeatAttempt.toBuilder()
-                        .userAnswer(answer)
+                        .userAnswerId(answerId)
                         .attemptTime(Instant.now())
                         .isSuccess(isAnswerCorrect)
                 .build());
