@@ -13,7 +13,6 @@ import com.pipikonda.translationbot.repository.RepeatAttemptRepository;
 import com.pipikonda.translationbot.repository.RepeatRepository;
 import com.pipikonda.translationbot.repository.TranslationRepository;
 import com.pipikonda.translationbot.repository.WordTranslationRepository;
-import com.pipikonda.translationbot.telegram.dto.BotAnswerDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -132,10 +131,7 @@ class RepeatAttemptServiceTest extends TestContainerBaseClass {
         Optional<RepeatAttempt> attempt = repeatAttemptRepository.findAll().stream().findFirst();
         assertThat(attempt).isPresent()
                 .hasValueSatisfying(e -> assertThat(e.getId()).isEqualTo(repeat.getId()));
-        assertThat(repeatAttempt.getValues()).contains(BotAnswerDto.builder()
-                .correct(true)
-                .value("dog")
-                .build());
+        assertThat(repeatAttempt.getValues()).contains("dog");
         assertThat(repeatAttempt.getValues().size()).isEqualTo(4);
     }
 }

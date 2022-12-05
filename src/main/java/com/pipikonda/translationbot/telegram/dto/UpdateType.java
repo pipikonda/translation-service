@@ -14,7 +14,9 @@ public enum UpdateType {
 
     MESSAGE("message"),
     MY_CHAT_MEMBER("my_chat_member"),
-    CALLBACK_QUERY("callback_query");
+    CALLBACK_QUERY("callback_query"),
+    POLL_ANSWER("poll_answer"),
+    POLL("poll");
 
     private static final Map<String, UpdateType> map = Arrays.stream(values())
             .collect(Collectors.toMap(UpdateType::getFiledName, Function.identity()));

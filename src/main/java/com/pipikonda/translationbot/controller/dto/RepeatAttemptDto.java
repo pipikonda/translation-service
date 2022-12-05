@@ -1,6 +1,5 @@
 package com.pipikonda.translationbot.controller.dto;
 
-import com.pipikonda.translationbot.telegram.dto.BotAnswerDto;
 import lombok.Builder;
 import lombok.Value;
 
@@ -11,6 +10,7 @@ import java.util.List;
 public class RepeatAttemptDto {
 
     Long attemptId;
-    List<BotAnswerDto> values;
+    List<String> values;
     String askedValue;
+    Integer correctIndex;
 }

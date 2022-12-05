@@ -13,5 +13,6 @@ public class GetTranslationPollDto {
     Long chatId;
     String askedValue;
     Locale userLocale;
-    List<BotAnswerDto> options;
+    List<String> options;
+    Integer correctIndex;
 }

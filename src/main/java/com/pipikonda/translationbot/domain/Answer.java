@@ -12,7 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -25,4 +25,5 @@ public class Answer {
     private Long translationValueId;
     private Long repeatAttemptId;
     boolean isCorrect;
+    private Long optionIndex;
 }

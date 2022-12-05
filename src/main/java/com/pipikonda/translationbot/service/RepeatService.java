@@ -52,6 +52,7 @@ public class RepeatService {
 
     @Scheduled(fixedDelay = 60000L)
     public void createRepeatAttempts() {
+        log.info("Start createRepeatAttempts scheduler");
         Long repeatId;
         while ((repeatId = repeatRepository.getNextRepeat(Instant.now())) != null) {
             try {
@@ -66,7 +67,9 @@ public class RepeatService {
                         .askedValue(repeatAttempt.getAskedValue())
                         .chatId(botUser.getChatId())
                         .userLocale(Locale.getDefault())
+                        .correctIndex(repeatAttempt.getCorrectIndex())
                         .build());
+                log.info("Poll is {}", translationPoll);
                 translateBot.execute(translationPoll);
             } catch (Exception ex) {
                 log.warn("Scheduled method got exception ", ex);
