@@ -62,7 +62,7 @@ public class KeyboardService {
                                         .text(messageSource.getMessage("telegram.button-name.bot-info", null, userLocale))
                                         .callbackData(
                                                 objectMapper.writeValueAsString(CallbackDataDto.builder()
-                                                        .value(CallbackDataCommand.TRANSLATE_WORD)
+                                                        .value(CallbackDataCommand.GET_BOT_INFO)
                                                         .build())
                                         ).build()
                         )

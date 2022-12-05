@@ -13,6 +13,7 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class MessageService {
 
+    private final String HTML_PARSE_MODE = "HTML";
     private final MessageSource messageSource;
     private final KeyboardService keyboardService;
 
@@ -29,6 +30,7 @@ public class MessageService {
                 .chatId(dto.getChatId())
                 .text(messageSource.getMessage(dto.getMessagePattern(), dto.getParams(), dto.getUserLocale()))
                 .replyMarkup(keyboardService.getBackToMenuKeyboard(dto.getUserLocale()))
+                .parseMode(HTML_PARSE_MODE)
                 .build();
     }
 }
