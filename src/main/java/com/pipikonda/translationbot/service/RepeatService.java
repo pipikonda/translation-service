@@ -23,16 +23,15 @@ public class RepeatService {
                         Instant.now().plus(RepeatAttemptService.baseRepeatInterval, RepeatAttemptService.repeatIntervalUnit);
         //todo if immediatelyRepeat -> call poll async
 
-        repeatRepository.findByUserIdAndWordTranslationId(dto.getUserId(), dto.getWordTranslationId())
-                .ifPresent(e -> {
-                    throw new BasicLogicException(ErrorCode.BAD_REQUEST,
-                            "Repeat with userId " + dto.getUserId() + " and  wordTranslationId " + dto.getWordTranslationId() + " is already exists");
-                });
-
         return repeatRepository.save(Repeat.builder()
                 .userId(dto.getUserId())
                 .nextRepeat(nextRepeat)
                 .wordTranslationId(dto.getWordTranslationId())
                 .build());
+    }
+
+    public boolean checkRepeatPresent(String userId, Long wordTranslationId) {
+        return repeatRepository.findByUserIdAndWordTranslationId(userId, wordTranslationId)
+                .isPresent();
     }
 }

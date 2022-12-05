@@ -6,6 +6,8 @@ import com.pipikonda.translationbot.controller.dto.RepeatAttemptDto;
 import com.pipikonda.translationbot.controller.dto.SaveRepeatAnswerDto;
 import com.pipikonda.translationbot.domain.Repeat;
 import com.pipikonda.translationbot.controller.dto.Response;
+import com.pipikonda.translationbot.error.BasicLogicException;
+import com.pipikonda.translationbot.error.ErrorCode;
 import com.pipikonda.translationbot.service.RepeatAttemptService;
 import com.pipikonda.translationbot.service.RepeatService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,11 @@ public class RepeatController {
 
     @PostMapping("/api/user/repeat")
     public Response<Repeat> createRepeat(@Valid @RequestBody CreateRepeatDto dto) {
+        if (repeatService.checkRepeatPresent(dto.getUserId(), dto.getWordTranslationId())) {
+            throw new BasicLogicException(ErrorCode.BAD_REQUEST,
+                    "Repeat with userId " + dto.getUserId() + " and  wordTranslationId " +
+                            dto.getWordTranslationId() + " is already exists");
+        }
         return new Response<>(repeatService.createNewRepeat(dto));
     }
 

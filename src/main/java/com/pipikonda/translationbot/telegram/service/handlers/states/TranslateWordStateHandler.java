@@ -44,12 +44,6 @@ public class TranslateWordStateHandler implements UserStateHandler {
                 .map(StringUtils::capitalize)
                 .toList();
 
-        TranslationBotResponse response = TranslationBotResponse.builder()
-                .translations(translations)
-                .word(word)
-                .userLocale(Locale.getDefault())
-                .chatId(botUser.getChatId())
-                .build();
         GetMessageBotRequestDto botRequestDto = GetMessageBotRequestDto.builder()
                 .userLocale(Locale.getDefault())
                 .chatId(botUser.getChatId())

@@ -1,6 +1,7 @@
 package com.pipikonda.translationbot.service;
 
 import com.pipikonda.translationbot.controller.dto.CreateCustomTranslateDto;
+import com.pipikonda.translationbot.controller.dto.CreateRepeatDto;
 import com.pipikonda.translationbot.controller.dto.CreateWordDto;
 import com.pipikonda.translationbot.domain.Lang;
 import com.pipikonda.translationbot.domain.Translation;
@@ -27,6 +28,7 @@ public class WordService {
     private final MyMemoryTranslateClient myMemoryTranslateClient;
     private final TranslationRepository translationRepository;
     private final WordTranslationRepository wordTranslationRepository;
+    private final RepeatService repeatService;
 
     public List<Translation> getTranslations(CreateWordDto dto) {
         Translation sourceTranslation = translationService.getTranslationByValue(dto.getWord());
@@ -35,17 +37,19 @@ public class WordService {
                 wordTranslationRepository.findBySourceTranslationIdAndSourceLangAndTargetLang(
                         sourceTranslation.getId(), dto.getSourceLang(), dto.getTargetLang()
                 );
-        List<Long> targetTranslationsId = translations.stream()
+        List<WordTranslation> targetTranslations = translations.stream()
                 .filter(e -> e.getUserId() == null)
+                .collect(Collectors.toList());
+        if (targetTranslations.isEmpty()) {
+            log.debug("targetTranslationsId are empty");
+            targetTranslations = translate(dto.getSourceLang(), dto.getTargetLang(), dto.getWord(), sourceTranslation.getId());
+        }
+        targetTranslations.forEach(e -> addToUserDictionary(dto.getUserId(), e.getId()));
+        log.info("targetTranslationsId ==> {}", targetTranslations);
+
+        List<Long> resultTranslations = targetTranslations.stream()
                 .map(WordTranslation::getTargetTranslationId)
                 .collect(Collectors.toList());
-        if (targetTranslationsId.isEmpty()) {
-            log.debug("targetTranslationsId are empty");
-            targetTranslationsId = translate(dto.getSourceLang(), dto.getTargetLang(), dto.getWord(), sourceTranslation.getId());
-        }
-        log.info("targetTranslationsId ==> {}", targetTranslationsId);
-
-        List<Long> resultTranslations = targetTranslationsId;
         Optional.ofNullable(dto.getUserId())
                 .ifPresent(e -> {
                     List<Long> userTranslations = translations.stream()
@@ -59,7 +63,7 @@ public class WordService {
         return translationRepository.findAllById(resultTranslations);
     }
 
-    private List<Long> translate(Lang sourceLang, Lang targetLang, String value, Long sourceTranslationId) {
+    private List<WordTranslation> translate(Lang sourceLang, Lang targetLang, String value, Long sourceTranslationId) {
         List<String> translatedValues = myMemoryTranslateClient.getTranslation(sourceLang, targetLang, value)
                 .stream()
                 .map(String::toLowerCase)
@@ -74,8 +78,17 @@ public class WordService {
                         .targetLang(targetLang)
                         .sourceLang(sourceLang)
                         .build()))
-                .map(WordTranslation::getTargetTranslationId)
                 .collect(Collectors.toList());
+    }
+
+    private void addToUserDictionary(String userId, Long wordTranslationId) {
+        if (!repeatService.checkRepeatPresent(userId, wordTranslationId)) {
+            repeatService.createNewRepeat(CreateRepeatDto.builder()
+                    .userId(userId)
+                    .wordTranslationId(wordTranslationId)
+                    .immediatelyRepeat(false)
+                    .build());
+        }
     }
 
     public void createCustomTranslate(CreateCustomTranslateDto dto) {
