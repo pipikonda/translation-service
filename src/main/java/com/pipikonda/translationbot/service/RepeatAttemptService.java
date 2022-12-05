@@ -1,5 +1,6 @@
 package com.pipikonda.translationbot.service;
 
+import com.pipikonda.translationbot.controller.dto.RepeatAttemptDto;
 import com.pipikonda.translationbot.domain.Answer;
 import com.pipikonda.translationbot.domain.Lang;
 import com.pipikonda.translationbot.domain.Repeat;
@@ -7,7 +8,6 @@ import com.pipikonda.translationbot.domain.RepeatAttempt;
 import com.pipikonda.translationbot.domain.RepeatType;
 import com.pipikonda.translationbot.domain.Translation;
 import com.pipikonda.translationbot.domain.WordTranslation;
-import com.pipikonda.translationbot.controller.dto.RepeatAttemptDto;
 import com.pipikonda.translationbot.error.BasicLogicException;
 import com.pipikonda.translationbot.error.ErrorCode;
 import com.pipikonda.translationbot.repository.AnswerRepository;
@@ -15,6 +15,7 @@ import com.pipikonda.translationbot.repository.RepeatAttemptRepository;
 import com.pipikonda.translationbot.repository.RepeatRepository;
 import com.pipikonda.translationbot.repository.TranslationRepository;
 import com.pipikonda.translationbot.repository.WordTranslationRepository;
+import com.pipikonda.translationbot.telegram.dto.BotAnswerDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,9 +55,9 @@ public class RepeatAttemptService {
                 answerRepository.findByRepeatAttemptIdAndTranslationValueIdAndIsCorrectIsTrue(repeatAttemptId, answerId)
                         .isPresent();
         repeatAttemptRepository.save(repeatAttempt.toBuilder()
-                        .userAnswerId(answerId)
-                        .attemptTime(Instant.now())
-                        .isSuccess(isAnswerCorrect)
+                .userAnswerId(answerId)
+                .attemptTime(Instant.now())
+                .isSuccess(isAnswerCorrect)
                 .build());
         return isAnswerCorrect;
     }
@@ -67,6 +68,7 @@ public class RepeatAttemptService {
                 .orElseThrow(() -> new BasicLogicException(ErrorCode.NOT_FOUND, "Not found repeat by id " + repeatId));
         repeatRepository.save(repeat.toBuilder()
                 .nextRepeat(getNextRepeatTime(repeat.getId()))
+                .lastRepeat(Instant.now())
                 .build());
         Integer attemptNumber = repeatAttemptRepository.findMaxAttemptNumberByRepeatId(repeat.getId());
         RepeatAttempt repeatAttempt = repeatAttemptRepository.save(RepeatAttempt.builder()
@@ -83,12 +85,17 @@ public class RepeatAttemptService {
         Translation correctAnswer = translationRepository.findById(wordTranslation.getTargetTranslationId())
                 .orElseThrow(() -> new BasicLogicException(ErrorCode.UNKNOWN_ERROR,
                         "Not found correct translation for source translation id " + wordTranslation.getTargetTranslationId()));
+        String askedValue = translationRepository.findById(wordTranslation.getSourceTranslationId())
+                .map(Translation::getTextValue)
+                .orElseThrow(() -> new BasicLogicException(ErrorCode.NOT_FOUND, "Not found source translation value"));
+
         List<Translation> fakeAnswers = getFakeAnswers(wordTranslation.getTargetLang(), wordTranslation.getTargetTranslationId(), repeat.getUserId());
         saveAnswers(fakeAnswers, correctAnswer, repeatAttempt.getId());
 
         return RepeatAttemptDto.builder()
                 .attemptId(repeatAttempt.getId())
                 .values(mixAnswers(fakeAnswers, correctAnswer))
+                .askedValue(askedValue)
                 .build();
     }
 
@@ -100,12 +107,19 @@ public class RepeatAttemptService {
                 .collect(Collectors.toList());
     }
 
-    private List<String> mixAnswers(List<Translation> answers, Translation correctAnswer) {
-        answers.add(correctAnswer);
-        Collections.shuffle(answers);
-        return answers.stream()
-                .map(Translation::getTextValue)
-                .toList();
+    private List<BotAnswerDto> mixAnswers(List<Translation> answers, Translation correctAnswer) {
+        List<BotAnswerDto> result = answers.stream()
+                .map(e -> BotAnswerDto.builder()
+                        .value(e.getTextValue())
+                        .correct(false)
+                        .build())
+                .collect(Collectors.toList());
+        result.add(BotAnswerDto.builder()
+                .correct(true)
+                .value(correctAnswer.getTextValue())
+                .build());
+        Collections.shuffle(result);
+        return result;
     }
 
     private void saveAnswers(List<Translation> fakeAnswers, Translation correctAnswer, Long repeatAttemptId) {

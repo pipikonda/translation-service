@@ -47,4 +47,19 @@ public class RepeatRepositoryTest extends TestContainerBaseClass {
                 .hasValueSatisfying(e -> assertThat(e).isEqualTo(repeat));
         assertThat(instance.findByUserIdAndWordTranslationId("another user id", 23L)).isEmpty();
     }
+
+    @Test
+    void getNextRepeat_shouldReturnEmpty_whenRepeatIsNotPresent() {
+        assertThat(instance.getNextRepeat(Instant.now())).isNull();
+    }
+
+    @Test
+    void getNextRepeat() {
+        Repeat repeat = instance.save(Repeat.builder()
+                .userId("some user id")
+                .nextRepeat(Instant.now().minusSeconds(60))
+                .wordTranslationId(23L)
+                .build());
+        assertThat(instance.getNextRepeat(Instant.now())).isEqualTo(repeat.getId());
+    }
 }
