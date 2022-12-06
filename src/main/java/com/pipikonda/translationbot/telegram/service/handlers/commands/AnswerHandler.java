@@ -35,9 +35,10 @@ public class AnswerHandler implements CommandHandler {
                 .userState(BotUser.UserState.ACTIVE)
                 .lastStateChanged(Instant.now())
                 .build());
+        log.info("CallbackData is ===> {}", data);
 
-        Long repeatAttemptId = data.getParams().get("attemptId").longValue();
-        Long userAnswer = data.getParams().get("answerId").longValue();
+        Long repeatAttemptId = data.getParams().get("attemptId").asLong();
+        Long userAnswer = data.getParams().get("answerId").asLong();
         log.info("User answer for attempt {} is {}", repeatAttemptId, userAnswer);
         boolean answerCorrect = repeatAttemptService.saveAnswer(repeatAttemptId, userAnswer);
 
@@ -45,7 +46,7 @@ public class AnswerHandler implements CommandHandler {
         AnswerCallbackQuery translationPollAnswer =
                 callbackAnswerService.getTranslationPollAnswer(update.getCallbackQuery().getId(), answerPattern, Locale.getDefault());
         translateBot.execute(translationPollAnswer);
-        translateBot.execute(messageService.getDeleteMessage(botUser.getChatId(), update.getMessage().getMessageId()));
+        translateBot.execute(messageService.getDeleteMessage(botUser.getChatId(), update.getCallbackQuery().getMessage().getMessageId()));
     }
 
     @Override
