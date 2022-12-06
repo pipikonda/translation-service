@@ -40,18 +40,17 @@ public class CallbackQueryHandler implements UpdateHandler {
     public void handleUpdate(Update update) throws JsonProcessingException {
         Long chatId = getChatId(update);
         BotUser botUser = botUserService.getBotUserByChatId(chatId);
-        String callbackData = update.getCallbackQuery().getData();
-        CallbackDataDto callbackDataDto = objectMapper.readValue(callbackData, CallbackDataDto.class);
-        Optional.ofNullable(commandHandlerMap.get(callbackDataDto.getValue()))
+        CallbackDataDto callbackDataDto = objectMapper.readValue(update.getCallbackQuery().getData(), CallbackDataDto.class);
+        Optional.ofNullable(commandHandlerMap.get(callbackDataDto.getCommand()))
                 .ifPresentOrElse(e -> {
                             try {
-                                e.handleCommand(update.getCallbackQuery().getId(), botUser);
+                                e.handleCommand(update, botUser, callbackDataDto);
                             } catch (TelegramApiException | JsonProcessingException ex) {
                                 log.error("CommandHandler got exception", ex);
                                 throw new RuntimeException(ex);
                             }
                         },
-                        () -> log.warn("Not found command handler for command " + callbackDataDto.getValue()));
+                        () -> log.warn("Not found command handler for command " + callbackDataDto.getCommand()));
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.pipikonda.translationbot.telegram.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
@@ -9,5 +10,6 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 public class CallbackDataDto {
 
-    CallbackDataCommand value;
+    CallbackDataCommand command;
+    JsonNode params;
 }

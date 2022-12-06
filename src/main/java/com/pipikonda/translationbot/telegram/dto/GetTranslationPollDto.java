@@ -14,4 +14,5 @@ public class GetTranslationPollDto {
     String askedValue;
     Locale userLocale;
     List<String> options;
+    Long repeatAttempt;
 }

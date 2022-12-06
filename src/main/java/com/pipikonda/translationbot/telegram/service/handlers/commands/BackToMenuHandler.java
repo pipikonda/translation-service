@@ -1,7 +1,9 @@
 package com.pipikonda.translationbot.telegram.service.handlers.commands;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.pipikonda.translationbot.domain.BotUser;
+import com.pipikonda.translationbot.telegram.dto.CallbackDataDto;
 import com.pipikonda.translationbot.telegram.service.BotUserService;
 import com.pipikonda.translationbot.telegram.dto.CallbackDataCommand;
 import com.pipikonda.translationbot.telegram.TranslateBot;
@@ -10,6 +12,7 @@ import com.pipikonda.translationbot.telegram.view.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.time.Instant;
@@ -25,14 +28,14 @@ public class BackToMenuHandler implements CommandHandler {
     private final CallbackAnswerService callbackAnswerService;
 
     @Override
-    public void handleCommand(String queryId, BotUser botUser) throws TelegramApiException, JsonProcessingException {
+    public void handleCommand(Update update, BotUser botUser, CallbackDataDto data) throws TelegramApiException, JsonProcessingException {
         SendMessage sendMessage = messageService.getMenuMessage(botUser.getChatId(), Locale.getDefault());
         translateBot.execute(sendMessage);
         botUserService.save(botUser.toBuilder()
                 .userState(BotUser.UserState.ACTIVE)
                 .lastStateChanged(Instant.now())
                 .build());
-        translateBot.execute(callbackAnswerService.getCallbackAnswer(queryId));
+        translateBot.execute(callbackAnswerService.getCallbackAnswer(update.getCallbackQuery().getId()));
     }
 
     @Override

@@ -67,8 +67,13 @@ public class RepeatService {
                         .askedValue(repeatAttempt.getAskedValue())
                         .chatId(botUser.getChatId())
                         .userLocale(Locale.getDefault())
+                        .repeatAttempt(repeatAttempt.getAttemptId())
                         .build());
                 log.info("Poll is {}", translationPollMessage);
+                botUserRepository.save(botUser.toBuilder()
+                        .userState(BotUser.UserState.ANSWER_TRANSLATE_POLL)
+                        .lastStateChanged(Instant.now())
+                        .build());
                 translateBot.execute(translationPollMessage);
             } catch (Exception ex) {
                 log.warn("Scheduled method got exception ", ex);

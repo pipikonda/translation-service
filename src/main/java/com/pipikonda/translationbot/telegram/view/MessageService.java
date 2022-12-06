@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 
 import java.util.Locale;
 
@@ -35,12 +36,19 @@ public class MessageService {
                 .build();
     }
 
-    public SendMessage getTranslatePollKeyboard(GetTranslationPollDto dto) {
+    public SendMessage getTranslatePollKeyboard(GetTranslationPollDto dto) throws JsonProcessingException {
         return SendMessage.builder()
                 .chatId(dto.getChatId())
                 .text(messageSource.getMessage("telegram.poll.ask-translation", new String[]{dto.getAskedValue()}, dto.getUserLocale()))
-                .replyMarkup(keyboardService.getPollKeyboard(dto.getOptions()))
+                .replyMarkup(keyboardService.getPollKeyboard(dto.getOptions(), dto.getUserLocale(), dto.getRepeatAttempt()))
                 .parseMode(HTML_PARSE_MODE)
+                .build();
+    }
+
+    public DeleteMessage getDeleteMessage(Long chatId, Integer messageId) {
+        return DeleteMessage.builder()
+                .chatId(chatId)
+                .messageId(messageId)
                 .build();
     }
 }

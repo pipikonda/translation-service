@@ -37,6 +37,7 @@ public class BotUser {
     public enum UserState {
         ACTIVE,
         LEFT,
-        TRANSLATE_WORD
+        TRANSLATE_WORD,
+        ANSWER_TRANSLATE_POLL
     }
 }

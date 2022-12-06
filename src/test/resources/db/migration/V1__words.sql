@@ -50,7 +50,7 @@ create table bot_users
     id                     bigserial primary key,
     chat_id                bigint,
     subscribed             boolean,
-    user_state             varchar(20),
+    user_state             varchar(50),
     last_state_changed     timestamp,
     last_subscribed_time   timestamp,
     last_unsubscribed_time timestamp

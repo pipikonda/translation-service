@@ -49,7 +49,7 @@ public class RepeatAttemptService {
         RepeatAttempt repeatAttempt = repeatAttemptRepository.findById(repeatAttemptId)
                 .orElseThrow(() -> new BasicLogicException(ErrorCode.NOT_FOUND, "Not found repeat attempt with id " + repeatAttemptId));
         if (repeatAttempt.getUserAnswerId() != null) {
-            throw new BasicLogicException(ErrorCode.BAD_REQUEST, "Attempt already has answer");
+            throw new BasicLogicException(ErrorCode.BAD_REQUEST, "Attempt " + repeatAttemptId + " already has answer");
         }
         Long answerId = translationService.getTranslationByValue(answer).getId();
         boolean isAnswerCorrect =

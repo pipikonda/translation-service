@@ -1,8 +1,10 @@
 package com.pipikonda.translationbot.telegram.service.handlers.commands;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.pipikonda.translationbot.domain.BotUser;
 import com.pipikonda.translationbot.domain.Lang;
+import com.pipikonda.translationbot.telegram.dto.CallbackDataDto;
 import com.pipikonda.translationbot.telegram.dto.GetMessageBotRequestDto;
 import com.pipikonda.translationbot.telegram.service.BotUserService;
 import com.pipikonda.translationbot.telegram.dto.CallbackDataCommand;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.time.Instant;
@@ -29,7 +32,7 @@ public class TranslateWordCommandHandler implements CommandHandler {
     private final CallbackAnswerService callbackAnswerService;
 
     @Override
-    public void handleCommand(String queryId, BotUser botUser) throws TelegramApiException, JsonProcessingException {
+    public void handleCommand(Update update,BotUser botUser, CallbackDataDto data) throws TelegramApiException, JsonProcessingException {
         botUser = botUser.toBuilder()
                 .userState(BotUser.UserState.TRANSLATE_WORD)
                 .lastStateChanged(Instant.now())
@@ -43,7 +46,7 @@ public class TranslateWordCommandHandler implements CommandHandler {
         SendMessage message = messageService.getMessageWithBackKeyboard(dto);
         translateBot.execute(message);
         botUserService.save(botUser);
-        translateBot.execute(callbackAnswerService.getCallbackAnswer(queryId));
+        translateBot.execute(callbackAnswerService.getCallbackAnswer(update.getCallbackQuery().getId()));
     }
 
     @Override

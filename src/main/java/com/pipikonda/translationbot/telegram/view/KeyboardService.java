@@ -2,6 +2,7 @@ package com.pipikonda.translationbot.telegram.view;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.pipikonda.translationbot.telegram.dto.CallbackDataCommand;
 import com.pipikonda.translationbot.telegram.dto.CallbackDataDto;
 import lombok.RequiredArgsConstructor;
@@ -24,16 +25,18 @@ public class KeyboardService {
 
     public InlineKeyboardMarkup getBackToMenuKeyboard(Locale userLocale) throws JsonProcessingException {
         return InlineKeyboardMarkup.builder()
-                .keyboardRow(List.of(
-                        InlineKeyboardButton.builder()
-                                .text(messageSource.getMessage("telegram.button-name.main", null, userLocale))
-                                .callbackData(
-                                        objectMapper.writeValueAsString(CallbackDataDto.builder()
-                                                .value(CallbackDataCommand.BACK_TO_MENU)
-                                                .build())
-                                ).build()
-                ))
+                .keyboardRow(List.of(getBackButton(userLocale)))
                 .build();
+    }
+
+    private InlineKeyboardButton getBackButton(Locale userLocale) throws JsonProcessingException {
+        return InlineKeyboardButton.builder()
+                .text(messageSource.getMessage("telegram.button-name.main", null, userLocale))
+                .callbackData(
+                        objectMapper.writeValueAsString(CallbackDataDto.builder()
+                                .command(CallbackDataCommand.BACK_TO_MENU)
+                                .build())
+                ).build();
     }
 
     public InlineKeyboardMarkup getMenuKeyboard(Locale userLocale) throws JsonProcessingException {
@@ -44,7 +47,7 @@ public class KeyboardService {
                                         .text(messageSource.getMessage("telegram.button-name.translate", null, userLocale))
                                         .callbackData(
                                                 objectMapper.writeValueAsString(CallbackDataDto.builder()
-                                                        .value(CallbackDataCommand.TRANSLATE_WORD)
+                                                        .command(CallbackDataCommand.TRANSLATE_WORD)
                                                         .build())
                                         ).build()
                         )
@@ -54,7 +57,7 @@ public class KeyboardService {
                                         .text(messageSource.getMessage("telegram.button-name.get-word", null, userLocale))
                                         .callbackData(
                                                 objectMapper.writeValueAsString(CallbackDataDto.builder()
-                                                        .value(CallbackDataCommand.GET_RANDOM_WORD)
+                                                        .command(CallbackDataCommand.GET_RANDOM_WORD)
                                                         .build())
                                         ).build()
                         )
@@ -64,21 +67,24 @@ public class KeyboardService {
                                         .text(messageSource.getMessage("telegram.button-name.bot-info", null, userLocale))
                                         .callbackData(
                                                 objectMapper.writeValueAsString(CallbackDataDto.builder()
-                                                        .value(CallbackDataCommand.GET_BOT_INFO)
+                                                        .command(CallbackDataCommand.GET_BOT_INFO)
                                                         .build())
                                         ).build()
                         )
                 ).build();
     }
 
-    public InlineKeyboardMarkup getPollKeyboard(List<String> options) {
+    public InlineKeyboardMarkup getPollKeyboard(List<String> options, Locale userLocale, Long repeatAttemptId) throws JsonProcessingException {
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("attempt", repeatAttemptId);
         List<List<InlineKeyboardButton>> pollButtons = options.stream()
                 .map(e -> {
                     try {
                         return List.of(InlineKeyboardButton.builder()
                                 .text(e)
                                 .callbackData(objectMapper.writeValueAsString(CallbackDataDto.builder()
-                                        .value(CallbackDataCommand.TRANSLATE_WORD_ANSWER)
+                                        .command(CallbackDataCommand.ANSWER)
+                                        .params(objectNode.put("answer", e))
                                         .build()))
                                 .build());
                     } catch (JsonProcessingException ex) {
@@ -89,6 +95,7 @@ public class KeyboardService {
 
         return InlineKeyboardMarkup.builder()
                 .keyboard(pollButtons)
+                .keyboardRow(List.of(getBackButton(userLocale)))
                 .build();
     }
 }
