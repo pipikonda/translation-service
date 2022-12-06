@@ -14,5 +14,4 @@ public class GetTranslationPollDto {
     String askedValue;
     Locale userLocale;
     List<String> options;
-    Integer correctIndex;
 }

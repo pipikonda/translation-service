@@ -25,5 +25,4 @@ public class Answer {
     private Long translationValueId;
     private Long repeatAttemptId;
     boolean isCorrect;
-    private Long optionIndex;
 }

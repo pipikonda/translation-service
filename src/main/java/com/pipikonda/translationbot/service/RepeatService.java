@@ -10,12 +10,12 @@ import com.pipikonda.translationbot.repository.BotUserRepository;
 import com.pipikonda.translationbot.repository.RepeatRepository;
 import com.pipikonda.translationbot.telegram.TranslateBot;
 import com.pipikonda.translationbot.telegram.dto.GetTranslationPollDto;
-import com.pipikonda.translationbot.telegram.view.PollService;
+import com.pipikonda.translationbot.telegram.view.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.methods.polls.SendPoll;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 import java.time.Instant;
 import java.util.Locale;
@@ -28,8 +28,8 @@ public class RepeatService {
     private final RepeatRepository repeatRepository;
     private final RepeatAttemptService repeatAttemptService;
     private final TranslateBot translateBot;
-    private final PollService pollService;
     private final BotUserRepository botUserRepository;
+    private final MessageService messageService;
 
     public Repeat createNewRepeat(CreateRepeatDto dto) {
         Instant nextRepeat =
@@ -62,15 +62,14 @@ public class RepeatService {
                 BotUser botUser = botUserRepository.findById(Long.valueOf(userId))
                         .orElseThrow(() -> new BasicLogicException(ErrorCode.NOT_FOUND, "Not found user by id " + userId + " when expected"));
                 RepeatAttemptDto repeatAttempt = repeatAttemptService.createRepeatAttempt(repeatId);
-                SendPoll translationPoll = pollService.getTranslationPoll(GetTranslationPollDto.builder()
+                SendMessage translationPollMessage = messageService.getTranslatePollKeyboard(GetTranslationPollDto.builder()
                         .options(repeatAttempt.getValues())
                         .askedValue(repeatAttempt.getAskedValue())
                         .chatId(botUser.getChatId())
                         .userLocale(Locale.getDefault())
-                        .correctIndex(repeatAttempt.getCorrectIndex())
                         .build());
-                log.info("Poll is {}", translationPoll);
-                translateBot.execute(translationPoll);
+                log.info("Poll is {}", translationPollMessage);
+                translateBot.execute(translationPollMessage);
             } catch (Exception ex) {
                 log.warn("Scheduled method got exception ", ex);
             }

@@ -42,8 +42,7 @@ create table answers
     id                   bigserial primary key,
     translation_value_id bigint,
     repeat_attempt_id    bigint,
-    is_correct           boolean,
-    option_index         int
+    is_correct           boolean
 );
 
 create table bot_users

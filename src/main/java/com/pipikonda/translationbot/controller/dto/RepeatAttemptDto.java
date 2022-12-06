@@ -12,5 +12,4 @@ public class RepeatAttemptDto {
     Long attemptId;
     List<String> values;
     String askedValue;
-    Integer correctIndex;
 }

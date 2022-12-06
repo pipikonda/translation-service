@@ -15,8 +15,6 @@ import com.pipikonda.translationbot.repository.RepeatAttemptRepository;
 import com.pipikonda.translationbot.repository.RepeatRepository;
 import com.pipikonda.translationbot.repository.TranslationRepository;
 import com.pipikonda.translationbot.repository.WordTranslationRepository;
-import com.pipikonda.translationbot.telegram.dto.FullAnswerInfoDto;
-import com.pipikonda.translationbot.telegram.dto.TranslatePollInfoDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -94,13 +91,12 @@ public class RepeatAttemptService {
                 .orElseThrow(() -> new BasicLogicException(ErrorCode.NOT_FOUND, "Not found source translation value"));
 
         List<Translation> fakeAnswers = getFakeAnswers(wordTranslation.getTargetLang(), wordTranslation.getTargetTranslationId(), repeat.getUserId());
-        TranslatePollInfoDto answersInfo = getAnswers(fakeAnswers, correctAnswer, repeatAttempt.getId());
+        List<String> answers = getAnswers(fakeAnswers, correctAnswer, repeatAttempt.getId());
 
         return RepeatAttemptDto.builder()
                 .attemptId(repeatAttempt.getId())
-                .values(answersInfo.getAnswers())
+                .values(answers)
                 .askedValue(askedValue)
-                .correctIndex(answersInfo.getCorrectAnswerIndex())
                 .build();
     }
 
@@ -112,45 +108,27 @@ public class RepeatAttemptService {
                 .collect(Collectors.toList());
     }
 
-    private TranslatePollInfoDto getAnswers(List<Translation> answers, Translation correctAnswer, Long repeatAttemptId) {
-        List<FullAnswerInfoDto> result = answers.stream()
-                .map(e -> FullAnswerInfoDto.builder()
-                        .correct(false)
-                        .translationId(e.getId())
-                        .value(e.getTextValue())
+    private List<String> getAnswers(List<Translation> answers, Translation correctAnswer, Long repeatAttemptId) {
+        List<Answer> result = answers.stream()
+                .map(e -> Answer.builder()
+                        .isCorrect(false)
+                        .translationValueId(e.getId())
+                        .repeatAttemptId(repeatAttemptId)
                         .build())
                 .collect(Collectors.toList());
-        result.add(FullAnswerInfoDto.builder()
-                .correct(true)
-                .translationId(correctAnswer.getId())
-                .value(correctAnswer.getTextValue())
+        result.add(Answer.builder()
+                .isCorrect(true)
+                .translationValueId(correctAnswer.getId())
+                .repeatAttemptId(repeatAttemptId)
                 .build());
         Collections.shuffle(result);
         log.info("Mixed values {}", result);
-        int correctOptionIndex = -1;
-        List<String> options = new ArrayList<>();
-        for (int i = 0; i < result.size(); i++) {
-            FullAnswerInfoDto answer = result.get(i);
-            if (answer.isCorrect()) {
-                correctOptionIndex = i;
-                log.info("Correct answer index is {}", correctOptionIndex);
-            }
-            Answer answerToSave = Answer.builder()
-                    .repeatAttemptId(repeatAttemptId)
-                    .optionIndex((long) i)
-                    .repeatAttemptId(repeatAttemptId)
-                    .translationValueId(answer.getTranslationId())
-                    .build();
-            answerRepository.save(answerToSave);
-            options.add(i, answer.getValue());
-        }
-        if (correctOptionIndex == -1) {
-            throw new BasicLogicException(ErrorCode.UNKNOWN_ERROR, "Not found correct answer in poll options when expected");
-        }
-        return TranslatePollInfoDto.builder()
-                .answers(options)
-                .correctAnswerIndex(correctOptionIndex)
-                .build();
+        answerRepository.saveAll(result);
+
+        answers.add(correctAnswer);
+        return answers.stream()
+                .map(Translation::getTextValue)
+                .toList();
     }
 
     /**

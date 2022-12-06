@@ -2,6 +2,7 @@ package com.pipikonda.translationbot.telegram.view;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pipikonda.translationbot.telegram.dto.GetMessageBotRequestDto;
+import com.pipikonda.translationbot.telegram.dto.GetTranslationPollDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,15 @@ public class MessageService {
                 .chatId(dto.getChatId())
                 .text(messageSource.getMessage(dto.getMessagePattern(), dto.getParams(), dto.getUserLocale()))
                 .replyMarkup(keyboardService.getBackToMenuKeyboard(dto.getUserLocale()))
+                .parseMode(HTML_PARSE_MODE)
+                .build();
+    }
+
+    public SendMessage getTranslatePollKeyboard(GetTranslationPollDto dto) {
+        return SendMessage.builder()
+                .chatId(dto.getChatId())
+                .text(messageSource.getMessage("telegram.poll.ask-translation", new String[]{dto.getAskedValue()}, dto.getUserLocale()))
+                .replyMarkup(keyboardService.getPollKeyboard(dto.getOptions()))
                 .parseMode(HTML_PARSE_MODE)
                 .build();
     }

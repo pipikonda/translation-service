@@ -9,7 +9,6 @@ import com.pipikonda.translationbot.service.WordService;
 import com.pipikonda.translationbot.telegram.dto.GetMessageBotRequestDto;
 import com.pipikonda.translationbot.telegram.service.BotUserService;
 import com.pipikonda.translationbot.telegram.TranslateBot;
-import com.pipikonda.translationbot.telegram.dto.TranslationBotResponse;
 import com.pipikonda.translationbot.telegram.view.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
