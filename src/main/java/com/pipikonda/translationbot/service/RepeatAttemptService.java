@@ -15,6 +15,7 @@ import com.pipikonda.translationbot.repository.RepeatAttemptRepository;
 import com.pipikonda.translationbot.repository.RepeatRepository;
 import com.pipikonda.translationbot.repository.TranslationRepository;
 import com.pipikonda.translationbot.repository.WordTranslationRepository;
+import com.pipikonda.translationbot.telegram.dto.OptionDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -43,6 +45,13 @@ public class RepeatAttemptService {
     private final SecureRandom secureRandom;
     private final WordTranslationRepository wordTranslationRepository;
     private final TranslationService translationService;
+
+    public boolean saveAnswer(Long repeatAttemptId, Long answerId) {
+        String value = translationRepository.findById(answerId)
+                .map(Translation::getTextValue)
+                .orElseThrow(() -> new BasicLogicException(ErrorCode.NOT_FOUND, "Not found option by id " + answerId));
+        return saveAnswer(repeatAttemptId, value);
+    }
 
     @Transactional
     public boolean saveAnswer(Long repeatAttemptId, String answer) {
@@ -91,7 +100,7 @@ public class RepeatAttemptService {
                 .orElseThrow(() -> new BasicLogicException(ErrorCode.NOT_FOUND, "Not found source translation value"));
 
         List<Translation> fakeAnswers = getFakeAnswers(wordTranslation.getTargetLang(), wordTranslation.getTargetTranslationId(), repeat.getUserId());
-        List<String> answers = getAnswers(fakeAnswers, correctAnswer, repeatAttempt.getId());
+        List<OptionDto> answers = getAnswers(fakeAnswers, correctAnswer, repeatAttempt.getId());
 
         return RepeatAttemptDto.builder()
                 .attemptId(repeatAttempt.getId())
@@ -108,7 +117,7 @@ public class RepeatAttemptService {
                 .collect(Collectors.toList());
     }
 
-    private List<String> getAnswers(List<Translation> answers, Translation correctAnswer, Long repeatAttemptId) {
+    private List<OptionDto> getAnswers(List<Translation> answers, Translation correctAnswer, Long repeatAttemptId) {
         List<Answer> result = answers.stream()
                 .map(e -> Answer.builder()
                         .isCorrect(false)
@@ -126,8 +135,13 @@ public class RepeatAttemptService {
         answerRepository.saveAll(result);
 
         answers.add(correctAnswer);
-        return answers.stream()
-                .map(Translation::getTextValue)
+        Map<Long, String> translationMap = answers.stream()
+                .collect(Collectors.toMap(Translation::getId, Translation::getTextValue, (z, x) -> z));
+        return result.stream()
+                .map(e -> OptionDto.builder()
+                        .answerId(e.getTranslationValueId())
+                        .value(translationMap.get(e.getTranslationValueId()))
+                        .build())
                 .toList();
     }
 

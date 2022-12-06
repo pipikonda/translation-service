@@ -13,6 +13,6 @@ public class GetTranslationPollDto {
     Long chatId;
     String askedValue;
     Locale userLocale;
-    List<String> options;
+    List<OptionDto> options;
     Long repeatAttempt;
 }

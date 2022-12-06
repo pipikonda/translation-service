@@ -36,8 +36,8 @@ public class AnswerHandler implements CommandHandler {
                 .lastStateChanged(Instant.now())
                 .build());
 
-        Long repeatAttemptId = data.getParams().get("attempt").longValue();
-        String userAnswer = data.getParams().get("answer").asText();
+        Long repeatAttemptId = data.getParams().get("attemptId").longValue();
+        Long userAnswer = data.getParams().get("answerId").longValue();
         log.info("User answer for attempt {} is {}", repeatAttemptId, userAnswer);
         boolean answerCorrect = repeatAttemptService.saveAnswer(repeatAttemptId, userAnswer);
 

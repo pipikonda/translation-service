@@ -38,6 +38,5 @@ public class BotUser {
         ACTIVE,
         LEFT,
         TRANSLATE_WORD,
-        ANSWER_TRANSLATE_POLL
     }
 }

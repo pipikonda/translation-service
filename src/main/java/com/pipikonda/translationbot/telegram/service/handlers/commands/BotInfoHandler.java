@@ -1,7 +1,5 @@
 package com.pipikonda.translationbot.telegram.service.handlers.commands;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.pipikonda.translationbot.domain.BotUser;
 import com.pipikonda.translationbot.telegram.TranslateBot;
 import com.pipikonda.translationbot.telegram.dto.CallbackDataCommand;
@@ -29,7 +27,7 @@ public class BotInfoHandler implements CommandHandler {
     private final CallbackAnswerService callbackAnswerService;
 
     @Override
-    public void handleCommand(Update update, BotUser botUser, CallbackDataDto data) throws TelegramApiException, JsonProcessingException {
+    public void handleCommand(Update update, BotUser botUser, CallbackDataDto data) throws TelegramApiException {
         botUserService.save(botUser.toBuilder()
                 .userState(BotUser.UserState.ACTIVE)
                 .lastStateChanged(Instant.now())

@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public enum CallbackDataCommand {
 
-    TRANSLATE_WORD(List.of("attemptId", "translationId")),
+    TRANSLATE_WORD(List.of("attemptId", "answerId")),
     ANSWER,
     GET_RANDOM_WORD,
     GET_BOT_INFO,

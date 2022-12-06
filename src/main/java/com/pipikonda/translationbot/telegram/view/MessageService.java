@@ -1,6 +1,5 @@
 package com.pipikonda.translationbot.telegram.view;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pipikonda.translationbot.telegram.dto.GetMessageBotRequestDto;
 import com.pipikonda.translationbot.telegram.dto.GetTranslationPollDto;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,7 @@ public class MessageService {
     private final MessageSource messageSource;
     private final KeyboardService keyboardService;
 
-    public SendMessage getMenuMessage(Long chatId, Locale userLocale) throws JsonProcessingException {
+    public SendMessage getMenuMessage(Long chatId, Locale userLocale) {
         return SendMessage.builder()
                 .chatId(chatId)
                 .text(messageSource.getMessage("telegram.message-text.menu", null, userLocale))
@@ -27,7 +26,7 @@ public class MessageService {
                 .build();
     }
 
-    public SendMessage getMessageWithBackKeyboard(GetMessageBotRequestDto dto) throws JsonProcessingException {
+    public SendMessage getMessageWithBackKeyboard(GetMessageBotRequestDto dto) {
         return SendMessage.builder()
                 .chatId(dto.getChatId())
                 .text(messageSource.getMessage(dto.getMessagePattern(), dto.getParams(), dto.getUserLocale()))
@@ -36,7 +35,7 @@ public class MessageService {
                 .build();
     }
 
-    public SendMessage getTranslatePollKeyboard(GetTranslationPollDto dto) throws JsonProcessingException {
+    public SendMessage getTranslatePollKeyboard(GetTranslationPollDto dto) {
         return SendMessage.builder()
                 .chatId(dto.getChatId())
                 .text(messageSource.getMessage("telegram.poll.ask-translation", new String[]{dto.getAskedValue()}, dto.getUserLocale()))

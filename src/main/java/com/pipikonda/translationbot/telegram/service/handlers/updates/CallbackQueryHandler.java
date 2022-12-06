@@ -1,12 +1,11 @@
 package com.pipikonda.translationbot.telegram.service.handlers.updates;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pipikonda.translationbot.domain.BotUser;
-import com.pipikonda.translationbot.telegram.service.BotUserService;
 import com.pipikonda.translationbot.telegram.dto.CallbackDataCommand;
 import com.pipikonda.translationbot.telegram.dto.CallbackDataDto;
 import com.pipikonda.translationbot.telegram.dto.UpdateType;
+import com.pipikonda.translationbot.telegram.service.BotUserService;
+import com.pipikonda.translationbot.telegram.service.handlers.CallbackDataMapper;
 import com.pipikonda.translationbot.telegram.service.handlers.commands.CommandHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,28 +23,28 @@ import java.util.stream.Collectors;
 public class CallbackQueryHandler implements UpdateHandler {
 
     private final BotUserService botUserService;
-    private final ObjectMapper objectMapper;
     private final Map<CallbackDataCommand, CommandHandler> commandHandlerMap;
+    private final CallbackDataMapper callbackDataMapper;
 
     public CallbackQueryHandler(BotUserService botUserService,
-                                ObjectMapper objectMapper,
-                                List<CommandHandler> commandHandlerMap) {
+                                List<CommandHandler> commandHandlerMap,
+                                CallbackDataMapper callbackDataMapper) {
         this.botUserService = botUserService;
-        this.objectMapper = objectMapper;
         this.commandHandlerMap = commandHandlerMap.stream()
                 .collect(Collectors.toMap(CommandHandler::getCommand, Function.identity()));
+        this.callbackDataMapper = callbackDataMapper;
     }
 
     @Override
-    public void handleUpdate(Update update) throws JsonProcessingException {
+    public void handleUpdate(Update update) {
         Long chatId = getChatId(update);
         BotUser botUser = botUserService.getBotUserByChatId(chatId);
-        CallbackDataDto callbackDataDto = objectMapper.readValue(update.getCallbackQuery().getData(), CallbackDataDto.class);
+        CallbackDataDto callbackDataDto = callbackDataMapper.stringToCallbackData(update.getCallbackQuery().getData());
         Optional.ofNullable(commandHandlerMap.get(callbackDataDto.getCommand()))
                 .ifPresentOrElse(e -> {
                             try {
                                 e.handleCommand(update, botUser, callbackDataDto);
-                            } catch (TelegramApiException | JsonProcessingException ex) {
+                            } catch (TelegramApiException ex) {
                                 log.error("CommandHandler got exception", ex);
                                 throw new RuntimeException(ex);
                             }

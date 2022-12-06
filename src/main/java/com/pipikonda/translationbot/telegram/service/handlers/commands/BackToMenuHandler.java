@@ -1,12 +1,10 @@
 package com.pipikonda.translationbot.telegram.service.handlers.commands;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.pipikonda.translationbot.domain.BotUser;
+import com.pipikonda.translationbot.telegram.TranslateBot;
+import com.pipikonda.translationbot.telegram.dto.CallbackDataCommand;
 import com.pipikonda.translationbot.telegram.dto.CallbackDataDto;
 import com.pipikonda.translationbot.telegram.service.BotUserService;
-import com.pipikonda.translationbot.telegram.dto.CallbackDataCommand;
-import com.pipikonda.translationbot.telegram.TranslateBot;
 import com.pipikonda.translationbot.telegram.view.CallbackAnswerService;
 import com.pipikonda.translationbot.telegram.view.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +26,7 @@ public class BackToMenuHandler implements CommandHandler {
     private final CallbackAnswerService callbackAnswerService;
 
     @Override
-    public void handleCommand(Update update, BotUser botUser, CallbackDataDto data) throws TelegramApiException, JsonProcessingException {
+    public void handleCommand(Update update, BotUser botUser, CallbackDataDto data) throws TelegramApiException {
         SendMessage sendMessage = messageService.getMenuMessage(botUser.getChatId(), Locale.getDefault());
         translateBot.execute(sendMessage);
         botUserService.save(botUser.toBuilder()
