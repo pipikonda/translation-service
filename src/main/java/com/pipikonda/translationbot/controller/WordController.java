@@ -2,10 +2,12 @@ package com.pipikonda.translationbot.controller;
 
 import com.pipikonda.translationbot.controller.dto.CreateCustomTranslateDto;
 import com.pipikonda.translationbot.controller.dto.CreateWordDto;
+import com.pipikonda.translationbot.controller.dto.GetRandomWordDto;
 import com.pipikonda.translationbot.domain.Translation;
 import com.pipikonda.translationbot.controller.dto.Response;
 import com.pipikonda.translationbot.service.WordService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +30,11 @@ public class WordController {
     public Response<String> createCustomTranslate(@Valid @RequestBody CreateCustomTranslateDto dto) {
         wordService.createCustomTranslate(dto);
         return Response.OK;
+    }
+
+    @GetMapping("/api/user/word/random")
+    public Response<String> getRandomWord(@Valid GetRandomWordDto dto) {
+        return null;
     }
 
 }

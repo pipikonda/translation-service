@@ -1,6 +1,5 @@
 package com.pipikonda.translationbot.telegram;
 
-import com.pipikonda.translationbot.telegram.service.UpdateService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -39,4 +38,5 @@ public class TranslateBot extends SpringWebhookBot {
     public String getBotToken() {
         return "5229575811:AAGQv2iROz1QHZYLKp2RnyadVN-UGJhARNI";
     }
+
 }

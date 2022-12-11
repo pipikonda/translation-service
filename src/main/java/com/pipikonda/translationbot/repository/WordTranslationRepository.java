@@ -31,4 +31,16 @@ public interface WordTranslationRepository extends JpaRepository<WordTranslation
     List<Long> getFakeAnswersId(@Param("targetLang") Lang targetLang,
                                 @Param("correctAnswerId") Long correctAnswerId,
                                 @Param("userId") String userId);
+
+    @Query(value = "select * from word_translations wt where wt.source_lang = :sourceLang and " +
+            "wt.user_id is null and wt.id not in :excludedIds order by RANDOM() limit 1",
+            nativeQuery = true)
+    Optional<WordTranslation> getRandomWordExcludeId(@Param("excludedIds") List<Long> excludedIds, @Param("sourceLang") String sourceLang);
+
+    default Optional<WordTranslation> getRandomWord(List<Long> excludedIds, Lang sourceLang) {
+        if (excludedIds.isEmpty()) {
+            excludedIds = List.of(-1L);
+        }
+        return getRandomWordExcludeId(excludedIds, sourceLang.name());
+    }
 }

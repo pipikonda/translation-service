@@ -24,10 +24,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -111,10 +113,14 @@ public class RepeatAttemptService {
 
     private List<Translation> getFakeAnswers(Lang targetLang, Long correctTranslationId, String userId) {
         List<Long> fakeAnswersId = wordTranslationRepository.getFakeAnswersId(targetLang, correctTranslationId, userId);
-        List<Translation> fakeAnswers = translationRepository.findAllById(fakeAnswersId);
-        return secureRandom.ints(fakeAnswersCount, 0, fakeAnswers.size())
-                .mapToObj(fakeAnswers::get)
-                .collect(Collectors.toList());
+        log.info("fake answersIds {}", fakeAnswersId);
+        if (fakeAnswersId.isEmpty()) {
+            return new ArrayList<>();
+        }
+        Set<Long> ids = secureRandom.ints(fakeAnswersCount, 0, fakeAnswersId.size())
+                .mapToObj(fakeAnswersId::get)
+                .collect(Collectors.toSet());
+        return translationRepository.findAllById(ids);
     }
 
     private List<OptionDto> getAnswers(List<Translation> answers, Translation correctAnswer, Long repeatAttemptId) {

@@ -1,14 +1,13 @@
 package com.pipikonda.translationbot.telegram.service.handlers.states;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pipikonda.translationbot.controller.dto.CreateWordDto;
 import com.pipikonda.translationbot.domain.BotUser;
 import com.pipikonda.translationbot.domain.Lang;
 import com.pipikonda.translationbot.domain.Translation;
 import com.pipikonda.translationbot.service.WordService;
+import com.pipikonda.translationbot.telegram.TranslateBot;
 import com.pipikonda.translationbot.telegram.dto.GetMessageBotRequestDto;
 import com.pipikonda.translationbot.telegram.service.BotUserService;
-import com.pipikonda.translationbot.telegram.TranslateBot;
 import com.pipikonda.translationbot.telegram.view.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,7 +29,7 @@ public class TranslateWordStateHandler implements UserStateHandler {
     private final BotUserService botUserService;
 
     @Override
-    public void handle(BotUser botUser, String word) throws TelegramApiException, JsonProcessingException {
+    public void handle(BotUser botUser, String word) throws TelegramApiException {
         CreateWordDto dto = CreateWordDto.builder()
                 .sourceLang(Lang.EN)
                 .targetLang(Lang.RU)

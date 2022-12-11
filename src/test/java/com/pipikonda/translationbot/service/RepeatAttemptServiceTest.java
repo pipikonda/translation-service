@@ -129,6 +129,7 @@ class RepeatAttemptServiceTest extends TestContainerBaseClass {
 
         RepeatAttemptDto repeatAttempt = instance.createRepeatAttempt(repeat.getId());
 
+        System.out.println("====> " + repeatAttempt.getValues());
         Optional<RepeatAttempt> attempt = repeatAttemptRepository.findAll().stream().findFirst();
         assertThat(attempt).isPresent()
                 .hasValueSatisfying(e -> assertThat(e.getId()).isEqualTo(repeat.getId()));
@@ -136,6 +137,6 @@ class RepeatAttemptServiceTest extends TestContainerBaseClass {
                 .value("dog")
                 .answerId(translation4.getId())
                 .build());
-        assertThat(repeatAttempt.getValues().size()).isEqualTo(4);
+        assertThat(repeatAttempt.getValues().size()).isEqualTo(2);
     }
 }

@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -180,5 +182,29 @@ public class WordTranslationRepositoryTest extends TestContainerBaseClass {
 
         assertThat(instance.findByIdAndUserId(wordTranslation.getId(), "qwe")).isPresent()
                 .hasValueSatisfying(e -> assertThat(e).isEqualTo(wordTranslation));
+    }
+
+    @Test
+    void testGetRandomWord_shouldReturnEmpty_whenWordTranslationIsExclude() {
+        WordTranslation wordTranslation = instance.save(WordTranslation.builder()
+                .sourceTranslationId(23L)
+                .targetTranslationId(12L)
+                .sourceLang(Lang.EN)
+                .targetLang(Lang.RU)
+                .build());
+
+        assertThat(instance.getRandomWord(List.of(wordTranslation.getId()), Lang.RU)).isEmpty();
+    }
+
+    @Test
+    void testGetRandomWord_shouldReturnEmpty_whenTargetLangIsNotFound() {
+        WordTranslation wordTranslation = instance.save(WordTranslation.builder()
+                .sourceTranslationId(23L)
+                .targetTranslationId(12L)
+                .sourceLang(Lang.RU)
+                .targetLang(Lang.EN)
+                .build());
+
+        assertThat(instance.getRandomWord(List.of(-1L), Lang.EN)).isEmpty();
     }
 }

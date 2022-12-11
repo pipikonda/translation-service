@@ -4,9 +4,11 @@ import com.pipikonda.translationbot.controller.dto.CreateCustomTranslateDto;
 import com.pipikonda.translationbot.controller.dto.CreateRepeatDto;
 import com.pipikonda.translationbot.controller.dto.CreateWordDto;
 import com.pipikonda.translationbot.domain.Lang;
+import com.pipikonda.translationbot.domain.Repeat;
 import com.pipikonda.translationbot.domain.Translation;
 import com.pipikonda.translationbot.domain.WordTranslation;
 import com.pipikonda.translationbot.error.BasicLogicException;
+import com.pipikonda.translationbot.error.ClientErrorException;
 import com.pipikonda.translationbot.error.ErrorCode;
 import com.pipikonda.translationbot.repository.TranslationRepository;
 import com.pipikonda.translationbot.repository.WordTranslationRepository;
@@ -14,6 +16,9 @@ import com.pipikonda.translationbot.service.http.MyMemoryTranslateClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +49,14 @@ public class WordService {
             log.debug("targetTranslationsId are empty");
             targetTranslations = translate(dto.getSourceLang(), dto.getTargetLang(), dto.getWord(), sourceTranslation.getId());
         }
-        targetTranslations.forEach(e -> addToUserDictionary(dto.getUserId(), e.getId()));
+        targetTranslations.forEach(e -> {
+            try {
+                addToUserDictionary(dto.getUserId(), e.getId());
+            } catch (TelegramApiException ex) {
+                log.error("Try to add user dictionary got exception", ex);
+                throw new RuntimeException(ex);
+            }
+        });
         log.info("targetTranslationsId ==> {}", targetTranslations);
 
         List<Long> resultTranslations = targetTranslations.stream()
@@ -81,12 +93,11 @@ public class WordService {
                 .collect(Collectors.toList());
     }
 
-    private void addToUserDictionary(String userId, Long wordTranslationId) {
+    private void addToUserDictionary(String userId, Long wordTranslationId) throws TelegramApiException {
         if (!repeatService.checkRepeatPresent(userId, wordTranslationId)) {
             repeatService.createNewRepeat(CreateRepeatDto.builder()
                     .userId(userId)
                     .wordTranslationId(wordTranslationId)
-                    .immediatelyRepeat(false)
                     .build());
         }
     }
@@ -107,5 +118,21 @@ public class WordService {
                 .targetTranslationId(targetTranslationId)
                 .userId(dto.getUserId())
                 .build());
+    }
+
+    @Transactional
+    public SendMessage getRandomWordPoll(String userId, Lang sourceLang) {
+        List<Long> userWordTranslations = repeatService.getUserWordTranslations(userId);
+        log.info("User word translations is {}", userWordTranslations);
+        WordTranslation wordTranslation = wordTranslationRepository.getRandomWord(userWordTranslations, sourceLang)
+                .orElseThrow(() -> new ClientErrorException(ErrorCode.NOT_FOUND, "Not found new words for you"));
+        Repeat newRepeat = repeatService.createNewRepeat(CreateRepeatDto.builder()
+                .wordTranslationId(wordTranslation.getId())
+                .userId(userId)
+                .build());
+
+        return repeatService.getRepeat(newRepeat.getId());
+
+
     }
 }

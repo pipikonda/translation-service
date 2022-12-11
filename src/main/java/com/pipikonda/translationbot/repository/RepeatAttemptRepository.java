@@ -11,4 +11,5 @@ public interface RepeatAttemptRepository extends JpaRepository<RepeatAttempt, Lo
 
     @Query(value = "select max(attempt_number) from repeat_attempts where repeat_id = :repeatId", nativeQuery = true)
     Integer findMaxAttemptNumberByRepeatId(@Param("repeatId") Long repeatId);
+
 }

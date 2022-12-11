@@ -62,4 +62,20 @@ public class RepeatRepositoryTest extends TestContainerBaseClass {
                 .build());
         assertThat(instance.getNextRepeat(Instant.now())).isEqualTo(repeat.getId());
     }
+
+    @Test
+    void testFindByUserId() {
+        Repeat repeat1 = instance.save(Repeat.builder()
+                .userId("some user id")
+                .nextRepeat(Instant.now().minusSeconds(60))
+                .wordTranslationId(23L)
+                .build());
+        Repeat repeat2 = instance.save(Repeat.builder()
+                .userId("some user id")
+                .nextRepeat(Instant.now().minusSeconds(60))
+                .wordTranslationId(25L)
+                .build());
+        assertThat(instance.findByUserId("some user id"))
+                .containsOnly(repeat2.getWordTranslationId(), repeat1.getWordTranslationId());
+    }
 }
