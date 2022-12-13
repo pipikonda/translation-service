@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * If add new update type, need to add it to telegram usage setWebhook allow_updates
+ */
 @RequiredArgsConstructor
 @Getter
 public enum UpdateType {

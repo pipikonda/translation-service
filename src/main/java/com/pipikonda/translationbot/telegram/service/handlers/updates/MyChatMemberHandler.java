@@ -1,11 +1,11 @@
 package com.pipikonda.translationbot.telegram.service.handlers.updates;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pipikonda.translationbot.domain.BotUser;
-import com.pipikonda.translationbot.telegram.service.BotUserService;
-import com.pipikonda.translationbot.telegram.dto.ChatMemberStatus;
 import com.pipikonda.translationbot.telegram.TranslateBot;
+import com.pipikonda.translationbot.telegram.dto.ChatMemberStatus;
+import com.pipikonda.translationbot.telegram.dto.ChatType;
 import com.pipikonda.translationbot.telegram.dto.UpdateType;
+import com.pipikonda.translationbot.telegram.service.BotUserService;
 import com.pipikonda.translationbot.telegram.view.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,9 +31,12 @@ public class MyChatMemberHandler implements UpdateHandler {
     public void handleUpdate(Update update) throws TelegramApiException {
         ChatMemberStatus oldStatus = ChatMemberStatus.getByValue(update.getMyChatMember().getOldChatMember().getStatus());
         ChatMemberStatus newStatus = ChatMemberStatus.getByValue(update.getMyChatMember().getNewChatMember().getStatus());
-
+        ChatType chatType = ChatType.getByValue(update.getMyChatMember().getChat().getType());
         Long chatId = getChatId(update);
-        log.info("User {} changed bot status from {} to {}", chatId, oldStatus, newStatus);
+        log.info("User {} changed bot status from {} to {}, chat type is {}", chatId, oldStatus, newStatus, chatType);
+        if (chatType != ChatType.PRIVATE) {
+            return;
+        }
         if (newStatus == ChatMemberStatus.KICKED) {
             BotUser botUser = botUserService.getBotUserByChatId(chatId);
             botUserService.save(botUser.toBuilder()
