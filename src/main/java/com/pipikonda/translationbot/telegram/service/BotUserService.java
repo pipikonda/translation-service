@@ -21,6 +21,7 @@ public class BotUserService {
             return botUserRepository.findByChatId(chatId)
                     .orElseGet(() -> botUserRepository.save(BotUser.builder()
                             .chatId(chatId)
+                            .userState(BotUser.UserState.ACTIVE)
                             .lastSubscribedTime(Instant.now())
                             .build()));
         } catch (ConstraintViolationException e) {

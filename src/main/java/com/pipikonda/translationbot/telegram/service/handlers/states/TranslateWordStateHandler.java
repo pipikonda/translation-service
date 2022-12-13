@@ -29,12 +29,12 @@ public class TranslateWordStateHandler implements UserStateHandler {
     private final BotUserService botUserService;
 
     @Override
-    public void handle(BotUser botUser, String word) throws TelegramApiException {
+    public void handle(BotUser botUser, String messageText) throws TelegramApiException {
         CreateWordDto dto = CreateWordDto.builder()
                 .sourceLang(Lang.EN)
                 .targetLang(Lang.RU)
                 .userId(String.valueOf(botUser.getId()))
-                .word(word)
+                .word(messageText)
                 .build();
         List<String> translations = wordService.getTranslations(dto)
                 .stream()

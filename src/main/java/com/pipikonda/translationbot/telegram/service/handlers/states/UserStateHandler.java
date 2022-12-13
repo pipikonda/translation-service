@@ -6,7 +6,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public interface UserStateHandler {
 
-    void handle(BotUser botUser, String word) throws TelegramApiException, JsonProcessingException;
+    void handle(BotUser botUser, String messageText) throws TelegramApiException, JsonProcessingException;
 
     BotUser.UserState getUserState();
 }
