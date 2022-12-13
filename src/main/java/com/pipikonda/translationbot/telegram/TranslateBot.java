@@ -1,6 +1,7 @@
 package com.pipikonda.translationbot.telegram;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook;
@@ -11,16 +12,19 @@ import org.telegram.telegrambots.starter.SpringWebhookBot;
 @Slf4j
 public class TranslateBot extends SpringWebhookBot {
 
-    public TranslateBot() {
+    private final String botToken;
+
+    public TranslateBot(@Value("${service.telegram.bot.token}") String botToken,
+                        @Value("${service.telegram.bot.webhook-url}") String webhookUrl) {
         super(SetWebhook.builder()
-                .url("https://7e47-46-98-123-26.eu.ngrok.io/callback/webhook")
-                .secretToken("5229575811:AAGQv2iROz1QHZYLKp2RnyadVN-UGJhARNI")
+                .url(webhookUrl)
+                .secretToken(botToken)
                 .build());
+        this.botToken = botToken;
     }
 
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
-        log.info("Got update to bot ===> {}", update);
         return null;
     }
 
@@ -36,7 +40,7 @@ public class TranslateBot extends SpringWebhookBot {
 
     @Override
     public String getBotToken() {
-        return "5229575811:AAGQv2iROz1QHZYLKp2RnyadVN-UGJhARNI";
+        return botToken;
     }
 
 }

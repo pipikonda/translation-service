@@ -32,6 +32,7 @@ public class UpdateService {
 
     public void handleUpdate(Update update) {
         UpdateType type = getUpdateType(update);
+        log.info("Got update type {}", type);
         UpdateHandler updateHandler = updateHandlers.get(type);
         Optional.ofNullable(updateHandler)
                 .ifPresentOrElse(e -> {

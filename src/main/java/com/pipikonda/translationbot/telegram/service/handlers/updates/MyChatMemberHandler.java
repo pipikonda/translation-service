@@ -28,12 +28,12 @@ public class MyChatMemberHandler implements UpdateHandler {
 
     @Override
     @Transactional
-    public void handleUpdate(Update update) throws TelegramApiException, JsonProcessingException {
+    public void handleUpdate(Update update) throws TelegramApiException {
         ChatMemberStatus oldStatus = ChatMemberStatus.getByValue(update.getMyChatMember().getOldChatMember().getStatus());
         ChatMemberStatus newStatus = ChatMemberStatus.getByValue(update.getMyChatMember().getNewChatMember().getStatus());
 
         Long chatId = getChatId(update);
-        log.info("User {} changed delivery bot status from {} to {}", chatId, oldStatus, newStatus);
+        log.info("User {} changed bot status from {} to {}", chatId, oldStatus, newStatus);
         if (newStatus == ChatMemberStatus.KICKED) {
             BotUser botUser = botUserService.getBotUserByChatId(chatId);
             botUserService.save(botUser.toBuilder()

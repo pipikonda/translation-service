@@ -17,7 +17,6 @@ public class TelegramController {
 
     @PostMapping("/callback/webhook")
     public void getWebhook(@RequestBody Update update) {
-        log.info("Got update to controller ===> {}", update);
         updateService.handleUpdate(update);
     }
 }

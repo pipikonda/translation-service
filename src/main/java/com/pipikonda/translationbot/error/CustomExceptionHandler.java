@@ -37,6 +37,15 @@ public class CustomExceptionHandler {
                 .build();
     }
 
+    public ErrorResponse handle(Exception exception) {
+        logException(exception);
+        //send message
+        return ErrorResponse.builder()
+                .errorCode(ErrorCode.UNKNOWN_ERROR)
+                .errorText(exception.getMessage())
+                .build();
+    }
+
     private void logException(Throwable throwable) {
         log.error("Got exception: ", throwable);
     }
