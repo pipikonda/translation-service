@@ -52,6 +52,7 @@ public class UpdateService {
                 .stream()
                 .filter(e -> !e.getKey().equals("update_id"))
                 .filter(e -> e.getValue() != null)
+                .peek(e -> log.info("Update value is {}", e))
                 .map(Map.Entry::getKey)
                 .findFirst()
                 .orElseThrow(() -> new BasicLogicException(ErrorCode.BAD_REQUEST, "Input update is empty"));
