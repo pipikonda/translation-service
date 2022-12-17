@@ -29,7 +29,7 @@ public class ChangeLangsHandler implements CommandHandler {
     public void handleCommand(Update update, BotUser botUser, CallbackDataDto data) throws TelegramApiException {
         SendMessage sendMessage = messageService.setSourceLangMessage(botUser.getChatId(), Locale.getDefault());
         botUserService.save(botUser.toBuilder()
-                .userState(BotUser.UserState.SET_TARGET_LANG)
+                .userState(BotUser.UserState.SET_SOURCE_LANG)
                 .lastStateChanged(Instant.now())
                 .build());
         translateBot.execute(sendMessage);

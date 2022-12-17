@@ -54,7 +54,7 @@ public class SetTargetLangHandler implements CommandHandler {
             translateBot.execute(sendMessage);
             translateBot.execute(callbackAnswerService.getCallbackAnswer(update.getCallbackQuery().getId()));
         } else {
-            log.info("Lang was not changed, user state is {}", botUser.getUserState());
+            log.info("Lang was not changed, user state is {} when expected SET_TARGET_LANG", botUser.getUserState());
         }
     }
 

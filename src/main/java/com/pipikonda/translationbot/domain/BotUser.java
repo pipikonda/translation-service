@@ -33,8 +33,12 @@ public class BotUser {
     private Instant lastStateChanged;
     private Instant lastSubscribedTime;
     private Instant lastUnsubscribedTime;
-    private Lang sourceLang;
+
+    @Enumerated(EnumType.STRING)
     private Lang targetLang;
+
+    @Enumerated(EnumType.STRING)
+    private Lang sourceLang;
 
     public enum UserState {
         ACTIVE,
