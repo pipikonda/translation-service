@@ -3,6 +3,7 @@ package com.pipikonda.translationbot.service;
 import com.pipikonda.translationbot.controller.dto.CreateCustomTranslateDto;
 import com.pipikonda.translationbot.controller.dto.CreateRepeatDto;
 import com.pipikonda.translationbot.controller.dto.CreateWordDto;
+import com.pipikonda.translationbot.domain.BotUser;
 import com.pipikonda.translationbot.domain.Lang;
 import com.pipikonda.translationbot.domain.Repeat;
 import com.pipikonda.translationbot.domain.Translation;
@@ -121,7 +122,8 @@ public class WordService {
     }
 
     @Transactional
-    public SendMessage getRandomWordPoll(String userId, Lang sourceLang) {
+    public SendMessage getRandomWordPoll(BotUser botUser, Lang sourceLang) {
+        String userId = String.valueOf(botUser.getId());
         List<Long> userWordTranslations = repeatService.getUserWordTranslations(userId);
         log.info("User word translations is {}", userWordTranslations);
         WordTranslation wordTranslation = wordTranslationRepository.getRandomWord(userWordTranslations, sourceLang)
@@ -131,7 +133,7 @@ public class WordService {
                 .userId(userId)
                 .build());
 
-        return repeatService.getRepeat(newRepeat.getId());
+        return repeatService.getRepeat(botUser, newRepeat.getId());
 
 
     }

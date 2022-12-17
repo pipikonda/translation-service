@@ -5,7 +5,7 @@ import com.pipikonda.translationbot.telegram.TranslateBot;
 import com.pipikonda.translationbot.telegram.dto.ChatMemberStatus;
 import com.pipikonda.translationbot.telegram.dto.ChatType;
 import com.pipikonda.translationbot.telegram.dto.UpdateType;
-import com.pipikonda.translationbot.telegram.service.BotUserService;
+import com.pipikonda.translationbot.service.BotUserService;
 import com.pipikonda.translationbot.telegram.view.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

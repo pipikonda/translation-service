@@ -4,6 +4,7 @@ import com.pipikonda.translationbot.controller.dto.CreateRepeatDto;
 import com.pipikonda.translationbot.controller.dto.RepeatAttemptDto;
 import com.pipikonda.translationbot.domain.BotUser;
 import com.pipikonda.translationbot.domain.Repeat;
+import com.pipikonda.translationbot.domain.TimePeriod;
 import com.pipikonda.translationbot.error.BasicLogicException;
 import com.pipikonda.translationbot.error.ErrorCode;
 import com.pipikonda.translationbot.repository.BotUserRepository;
@@ -17,8 +18,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.time.Instant;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Locale;
 
@@ -32,6 +35,7 @@ public class RepeatService {
     private final TranslateBot translateBot;
     private final BotUserRepository botUserRepository;
     private final MessageService messageService;
+    private final TimePeriodService timePeriodService;
 
     public Repeat createNewRepeat(CreateRepeatDto dto) {
         Instant nextRepeat = Instant.now().plus(RepeatAttemptService.baseRepeatInterval, RepeatAttemptService.repeatIntervalUnit);
@@ -57,21 +61,31 @@ public class RepeatService {
         Long repeatId;
         while ((repeatId = repeatRepository.getNextRepeat(Instant.now())) != null) {
             try {
-                SendMessage poll = getRepeat(repeatId);
-                translateBot.execute(poll);
+                sendPoll(repeatId);
             } catch (Exception ex) {
                 log.warn("Scheduled method got exception ", ex);
             }
         }
     }
 
-    @Transactional
-    public SendMessage getRepeat(Long repeatId) {
+    private void sendPoll(Long repeatId) throws TelegramApiException {
         String userId = repeatRepository.findById(repeatId)
                 .map(Repeat::getUserId)
                 .orElseThrow(() -> new BasicLogicException(ErrorCode.NOT_FOUND, "Not found repeat when expected"));
         BotUser botUser = botUserRepository.findById(Long.valueOf(userId))
                 .orElseThrow(() -> new BasicLogicException(ErrorCode.NOT_FOUND, "Not found user by id " + userId + " when expected"));
+        List<TimePeriod> periods = timePeriodService.findByUserId(botUser.getId());
+        boolean isTimeQuite = timePeriodService.checkTimeBetween(periods, LocalTime.now());
+        if (isTimeQuite) {
+            SendMessage poll = getRepeat(botUser, repeatId);
+            translateBot.execute(poll);
+        } else {
+            log.info("Don't send poll to user. For user {} quite periods - {}", userId, periods);
+        }
+    }
+
+    @Transactional
+    public SendMessage getRepeat(BotUser botUser, Long repeatId) {
         RepeatAttemptDto repeatAttempt = repeatAttemptService.createRepeatAttempt(repeatId);
         SendMessage translationPollMessage = messageService.getTranslatePollKeyboard(GetTranslationPollDto.builder()
                 .options(repeatAttempt.getValues())

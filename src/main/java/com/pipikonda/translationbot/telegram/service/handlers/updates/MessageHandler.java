@@ -2,7 +2,7 @@ package com.pipikonda.translationbot.telegram.service.handlers.updates;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pipikonda.translationbot.domain.BotUser;
-import com.pipikonda.translationbot.telegram.service.BotUserService;
+import com.pipikonda.translationbot.service.BotUserService;
 import com.pipikonda.translationbot.telegram.dto.UpdateType;
 import com.pipikonda.translationbot.telegram.service.handlers.states.UserStateHandler;
 import lombok.extern.slf4j.Slf4j;

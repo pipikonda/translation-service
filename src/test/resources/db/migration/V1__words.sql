@@ -53,5 +53,17 @@ create table bot_users
     user_state             varchar(50),
     last_state_changed     timestamp,
     last_subscribed_time   timestamp,
-    last_unsubscribed_time timestamp
+    last_unsubscribed_time timestamp,
+    source_lang            char(2),
+    target_lang            char(2)
 );
+
+create table time_periods
+(
+    id         bigserial primary key,
+    user_id    bigint not null,
+    start_time time,
+    end_time   time
+);
+
+create index time_periods_user_index on time_periods (user_id);
