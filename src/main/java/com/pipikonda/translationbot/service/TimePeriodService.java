@@ -30,7 +30,15 @@ public class TimePeriodService {
 
     public List<TimePeriod> findByUserId(Long userId) {
         return timePeriodRepository.findByUserId(userId).stream()
-                .sorted()
+                .sorted((e, v) -> {
+                    if (e.getStartTime().isBefore(v.getStartTime())) {
+                        return 1;
+                    }
+                    if (e.getStartTime().isAfter(v.getStartTime())) {
+                        return -1;
+                    }
+                    return 0;
+                })
                 .toList();
     }
 
