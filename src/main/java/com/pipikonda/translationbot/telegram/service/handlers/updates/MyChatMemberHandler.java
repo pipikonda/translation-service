@@ -53,7 +53,6 @@ public class MyChatMemberHandler implements UpdateHandler {
                     .userState(BotUser.UserState.ACTIVE)
                     .lastStateChanged(Instant.now())
                     .build());
-            translateBot.execute(messageService.getMenuMessage(chatId, Locale.getDefault()));
         } else {
             log.warn("Handler is not present for status {}", newStatus);
         }
