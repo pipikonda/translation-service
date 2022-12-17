@@ -120,7 +120,7 @@ public class KeyboardService {
 
     public InlineKeyboardMarkup getTargetLangKeyboard(Locale userLocale, Lang sourceLang) {
         List<List<InlineKeyboardButton>> buttons = Arrays.stream(Lang.values())
-                .filter(e -> e == sourceLang)
+                .filter(e -> e != sourceLang)
                 .map(e -> List.of(InlineKeyboardButton.builder()
                 .text(messageSource.getMessage("telegram.emoji.langs." + e.name(), null, Locale.getDefault()))
                 .callbackData(callbackDataMapper.callbackDataToString(CallbackDataDto.builder()
