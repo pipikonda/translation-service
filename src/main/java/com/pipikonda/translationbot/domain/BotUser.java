@@ -40,5 +40,7 @@ public class BotUser {
         ACTIVE,
         LEFT,
         TRANSLATE_WORD,
+        SET_SOURCE_LANG,
+        SET_TARGET_LANG
     }
 }

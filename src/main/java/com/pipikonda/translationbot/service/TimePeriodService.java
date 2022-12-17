@@ -6,7 +6,6 @@ import com.pipikonda.translationbot.error.ErrorCode;
 import com.pipikonda.translationbot.repository.TimePeriodRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -18,7 +17,7 @@ public class TimePeriodService {
     private final TimePeriodRepository timePeriodRepository;
 
     public TimePeriod add(Long userId, LocalTime startTime, LocalTime endTime) {
-        if (startTime.isAfter(endTime)) {
+        if (endTime != LocalTime.MIDNIGHT && startTime.isAfter(endTime)) {
             throw new BasicLogicException(ErrorCode.VALIDATION_ERROR, "startTime is before than endTime");
         }
 
@@ -30,14 +29,9 @@ public class TimePeriodService {
     }
 
     public List<TimePeriod> findByUserId(Long userId) {
-        return timePeriodRepository.findByUserId(userId);
-    }
-
-    @Transactional
-    public void delete(Long id) {
-        TimePeriod timePeriod = timePeriodRepository.findById(id)
-                .orElseThrow(() -> new BasicLogicException(ErrorCode.NOT_FOUND, "Not found time period by id " + id));
-        timePeriodRepository.delete(timePeriod);
+        return timePeriodRepository.findByUserId(userId).stream()
+                .sorted()
+                .toList();
     }
 
     public boolean checkTimeBetween(List<TimePeriod> periods, LocalTime time) {

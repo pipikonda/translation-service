@@ -27,6 +27,7 @@ public class BotUserService {
                     .orElseGet(() -> botUserRepository.save(BotUser.builder()
                             .chatId(chatId)
                             .userState(BotUser.UserState.ACTIVE)
+                            .lastStateChanged(Instant.now())
                             .lastSubscribedTime(Instant.now())
                             .sourceLang(Lang.EN)
                             .targetLang(Lang.RU)
