@@ -1,10 +1,10 @@
 package com.pipikonda.translationbot.telegram.service.handlers.updates;
 
 import com.pipikonda.translationbot.domain.BotUser;
+import com.pipikonda.translationbot.service.BotUserService;
 import com.pipikonda.translationbot.telegram.dto.ChatMemberStatus;
 import com.pipikonda.translationbot.telegram.dto.ChatType;
 import com.pipikonda.translationbot.telegram.dto.UpdateType;
-import com.pipikonda.translationbot.telegram.service.BotUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
