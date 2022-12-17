@@ -20,7 +20,10 @@ public class TimePeriodService {
         if (endTime != LocalTime.MIDNIGHT && startTime.isAfter(endTime)) {
             throw new BasicLogicException(ErrorCode.VALIDATION_ERROR, "startTime is before than endTime");
         }
-
+        List<TimePeriod> periods = timePeriodRepository.findByUserId(userId);
+        if (checkTimeBetween(periods, startTime) || checkTimeBetween(periods, endTime)) {
+            throw new BasicLogicException(ErrorCode.VALIDATION_ERROR, "Part ow whole period is already added");
+        }
         return timePeriodRepository.save(TimePeriod.builder()
                 .userId(userId)
                 .startTime(startTime)

@@ -6,6 +6,7 @@ import com.pipikonda.translationbot.error.BasicLogicException;
 import com.pipikonda.translationbot.error.ErrorCode;
 import com.pipikonda.translationbot.repository.BotUserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,7 @@ import java.time.Instant;
 import java.time.LocalTime;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class BotUserService {
 
@@ -23,18 +25,21 @@ public class BotUserService {
     @Transactional
     public BotUser getBotUserByChatId(Long chatId) {
         try {
-            BotUser botUser = botUserRepository.findByChatId(chatId)
-                    .orElseGet(() -> botUserRepository.save(BotUser.builder()
-                            .chatId(chatId)
-                            .userState(BotUser.UserState.ACTIVE)
-                            .lastStateChanged(Instant.now())
-                            .lastSubscribedTime(Instant.now())
-                            .sourceLang(Lang.EN)
-                            .targetLang(Lang.RU)
-                            .build()));
-            timePeriodService.add(botUser.getId(), LocalTime.of(22, 0), LocalTime.MIDNIGHT);
-            timePeriodService.add(botUser.getId(), LocalTime.MIDNIGHT, LocalTime.of(8, 0));
-            return botUser;
+            return botUserRepository.findByChatId(chatId)
+                    .orElseGet(() -> {
+                        BotUser user = botUserRepository.save(BotUser.builder()
+                                .chatId(chatId)
+                                .userState(BotUser.UserState.ACTIVE)
+                                .lastStateChanged(Instant.now())
+                                .lastSubscribedTime(Instant.now())
+                                .sourceLang(Lang.EN)
+                                .targetLang(Lang.RU)
+                                .build());
+
+                        timePeriodService.add(user.getId(), LocalTime.of(22, 0), LocalTime.MIDNIGHT);
+                        timePeriodService.add(user.getId(), LocalTime.MIDNIGHT, LocalTime.of(8, 0));
+                        return user;
+                    });
         } catch (ConstraintViolationException e) {
             return botUserRepository.findByChatId(chatId)
                     .orElseThrow(() -> new BasicLogicException(ErrorCode.UNKNOWN_ERROR, "Not found user when expected"));

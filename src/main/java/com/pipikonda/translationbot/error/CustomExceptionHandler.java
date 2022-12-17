@@ -71,6 +71,6 @@ public class CustomExceptionHandler {
     }
 
     private void logException(Throwable throwable) {
-        log.error("Got exception: ", throwable);
+        log.error("Exception handler got exception: ", throwable);
     }
 }
