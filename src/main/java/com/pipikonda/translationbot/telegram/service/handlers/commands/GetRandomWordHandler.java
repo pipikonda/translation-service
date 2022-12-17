@@ -31,7 +31,7 @@ public class GetRandomWordHandler implements CommandHandler {
     public void handleCommand(Update update, BotUser botUser, CallbackDataDto data) throws TelegramApiException {
         SendMessage randomWordPoll;
         try {
-            randomWordPoll = wordService.getRandomWordPoll(String.valueOf(botUser.getId()), Lang.EN);
+            randomWordPoll = wordService.getRandomWordPoll(botUser, Lang.EN);
             translateBot.execute(randomWordPoll);
         } catch (ClientErrorException exception) {
             translateBot.execute(messageService.getMessageWithBackKeyboard(GetMessageBotRequestDto.builder()

@@ -1,6 +1,7 @@
 package com.pipikonda.translationbot.telegram.view;
 
 import com.pipikonda.translationbot.telegram.dto.GetMessageBotRequestDto;
+import com.pipikonda.translationbot.telegram.dto.GetSettingsInfoDto;
 import com.pipikonda.translationbot.telegram.dto.GetTranslationPollDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -23,6 +24,30 @@ public class MessageService {
                 .chatId(chatId)
                 .text(messageSource.getMessage("telegram.message-text.menu", null, userLocale))
                 .replyMarkup(keyboardService.getMenuKeyboard(userLocale))
+                .build();
+    }
+
+    public SendMessage getSettingsMessage(GetSettingsInfoDto dto) {
+        return SendMessage.builder()
+                .chatId(dto.getChatId())
+                .text(messageSource.getMessage("telegram.message-text.settings", dto.getParams(), dto.getUserLocale()))
+                .replyMarkup(keyboardService.getSettingsKeyboard(dto.getUserLocale()))
+                .build();
+    }
+
+    public SendMessage setSourceLangMessage(Long chatId, Locale userLocale) {
+        return SendMessage.builder()
+                .chatId(chatId)
+                .text(messageSource.getMessage("telegram.message-text.set-source-lang", null, userLocale))
+                .replyMarkup(keyboardService.getSourceLangKeyboard(userLocale))
+                .build();
+    }
+
+    public SendMessage setTargetLangMessage(Long chatId, Locale userLocale) {
+        return SendMessage.builder()
+                .chatId(chatId)
+                .text(messageSource.getMessage("telegram.message-text.set-target-lang", null, userLocale))
+                .replyMarkup(keyboardService.getSourceLangKeyboard(userLocale))
                 .build();
     }
 

@@ -1,6 +1,7 @@
 package com.pipikonda.translationbot.telegram.view;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pipikonda.translationbot.domain.Lang;
 import com.pipikonda.translationbot.telegram.dto.CallbackDataCommand;
 import com.pipikonda.translationbot.telegram.dto.CallbackDataDto;
 import com.pipikonda.translationbot.telegram.dto.OptionDto;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -65,6 +67,16 @@ public class KeyboardService {
                 ).keyboardRow(
                         List.of(
                                 InlineKeyboardButton.builder()
+                                        .text(messageSource.getMessage("telegram.button-name.user-settings", null, userLocale))
+                                        .callbackData(
+                                                callbackDataMapper.callbackDataToString(CallbackDataDto.builder()
+                                                        .command(CallbackDataCommand.USER_SETTINGS)
+                                                        .build())
+                                        ).build()
+                        )
+                ).keyboardRow(
+                        List.of(
+                                InlineKeyboardButton.builder()
                                         .text(messageSource.getMessage("telegram.button-name.bot-info", null, userLocale))
                                         .callbackData(
                                                 callbackDataMapper.callbackDataToString(CallbackDataDto.builder()
@@ -73,6 +85,56 @@ public class KeyboardService {
                                         ).build()
                         )
                 ).build();
+    }
+
+    public InlineKeyboardMarkup getSettingsKeyboard(Locale userLocale) {
+        return InlineKeyboardMarkup.builder()
+                .keyboardRow(
+                        List.of(
+                                InlineKeyboardButton.builder()
+                                        .text(messageSource.getMessage("telegram.button-name.user-translate-langs", null, userLocale))
+                                        .callbackData(
+                                                callbackDataMapper.callbackDataToString(CallbackDataDto.builder()
+                                                        .command(CallbackDataCommand.CHANGE_LANGS)
+                                                        .build())
+                                        ).build()
+                        )
+                ).keyboardRow(List.of(getBackButton(userLocale))).build();
+    }
+
+    public InlineKeyboardMarkup getSourceLangKeyboard(Locale userLocale) {
+        List<List<InlineKeyboardButton>> buttons = Arrays.stream(Lang.values()).map(e -> List.of(InlineKeyboardButton.builder()
+                .text(messageSource.getMessage("telegram.emoji.langs." + e.name(), null, Locale.getDefault()))
+                .callbackData(callbackDataMapper.callbackDataToString(CallbackDataDto.builder()
+                        .command(CallbackDataCommand.SET_SOURCE_LANG)
+                        .params(objectMapper.createObjectNode()
+                                .put("source", e.name()))
+                        .build()))
+                .build())
+        ).toList();
+        return InlineKeyboardMarkup.builder()
+                .keyboard(buttons)
+                .keyboardRow(List.of(getBackButton(userLocale)))
+                .build();
+    }
+
+    public InlineKeyboardMarkup getSourceLangKeyboard(Locale userLocale, Lang sourceLang) {
+        List<List<InlineKeyboardButton>> buttons = Arrays.stream(Lang.values())
+                .filter(e -> e == sourceLang)
+                .map(e -> List.of(InlineKeyboardButton.builder()
+                .text(messageSource.getMessage("telegram.emoji.langs." + e.name(), null, Locale.getDefault()))
+                .callbackData(callbackDataMapper.callbackDataToString(CallbackDataDto.builder()
+                        .command(CallbackDataCommand.SET_TARGET_LANG)
+                        .params(objectMapper.createObjectNode()
+                                .put("source", sourceLang.name())
+                                .put("target", e.name()))
+                        .build()))
+                .build())
+        ).toList();
+        return InlineKeyboardMarkup.builder()
+                .keyboard(buttons)
+                .keyboardRow(List.of(getBackButton(userLocale)))
+                .build();
     }
 
     public InlineKeyboardMarkup getPollKeyboard(List<OptionDto> options, Locale userLocale, Long repeatAttemptId) {

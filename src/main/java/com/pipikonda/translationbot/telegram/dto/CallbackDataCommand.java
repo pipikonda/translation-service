@@ -15,6 +15,10 @@ public enum CallbackDataCommand {
     ANSWER(List.of("attemptId", "answerId")),
     GET_RANDOM_WORD,
     GET_BOT_INFO,
+    USER_SETTINGS,
+    CHANGE_LANGS,
+    SET_SOURCE_LANG(List.of("source")),
+    SET_TARGET_LANG(List.of("source", "target")),
     BACK_TO_MENU;
 
     List<String> fields;

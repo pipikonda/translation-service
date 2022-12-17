@@ -4,7 +4,7 @@ import com.pipikonda.translationbot.domain.BotUser;
 import com.pipikonda.translationbot.telegram.TranslateBot;
 import com.pipikonda.translationbot.telegram.dto.CallbackDataCommand;
 import com.pipikonda.translationbot.telegram.dto.CallbackDataDto;
-import com.pipikonda.translationbot.telegram.service.BotUserService;
+import com.pipikonda.translationbot.service.BotUserService;
 import com.pipikonda.translationbot.telegram.view.CallbackAnswerService;
 import com.pipikonda.translationbot.telegram.view.MessageService;
 import lombok.RequiredArgsConstructor;
