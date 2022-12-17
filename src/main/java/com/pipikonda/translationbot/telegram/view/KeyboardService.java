@@ -118,7 +118,7 @@ public class KeyboardService {
                 .build();
     }
 
-    public InlineKeyboardMarkup getSourceLangKeyboard(Locale userLocale, Lang sourceLang) {
+    public InlineKeyboardMarkup getTargetLangKeyboard(Locale userLocale, Lang sourceLang) {
         List<List<InlineKeyboardButton>> buttons = Arrays.stream(Lang.values())
                 .filter(e -> e == sourceLang)
                 .map(e -> List.of(InlineKeyboardButton.builder()

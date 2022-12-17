@@ -1,5 +1,6 @@
 package com.pipikonda.translationbot.telegram.view;
 
+import com.pipikonda.translationbot.domain.Lang;
 import com.pipikonda.translationbot.telegram.dto.GetMessageBotRequestDto;
 import com.pipikonda.translationbot.telegram.dto.GetSettingsInfoDto;
 import com.pipikonda.translationbot.telegram.dto.GetTranslationPollDto;
@@ -43,11 +44,11 @@ public class MessageService {
                 .build();
     }
 
-    public SendMessage setTargetLangMessage(Long chatId, Locale userLocale) {
+    public SendMessage setTargetLangMessage(Long chatId, Locale userLocale, Lang sourceLang) {
         return SendMessage.builder()
                 .chatId(chatId)
                 .text(messageSource.getMessage("telegram.message-text.set-target-lang", null, userLocale))
-                .replyMarkup(keyboardService.getSourceLangKeyboard(userLocale))
+                .replyMarkup(keyboardService.getTargetLangKeyboard(userLocale, sourceLang))
                 .build();
     }
 

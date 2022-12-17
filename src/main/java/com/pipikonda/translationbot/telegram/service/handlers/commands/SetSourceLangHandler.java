@@ -1,6 +1,7 @@
 package com.pipikonda.translationbot.telegram.service.handlers.commands;
 
 import com.pipikonda.translationbot.domain.BotUser;
+import com.pipikonda.translationbot.domain.Lang;
 import com.pipikonda.translationbot.service.BotUserService;
 import com.pipikonda.translationbot.telegram.TranslateBot;
 import com.pipikonda.translationbot.telegram.dto.CallbackDataCommand;
@@ -34,7 +35,8 @@ public class SetSourceLangHandler implements CommandHandler {
                     .lastStateChanged(Instant.now())
                     .userState(BotUser.UserState.SET_TARGET_LANG)
                     .build());
-            SendMessage sendMessage = messageService.setTargetLangMessage(botUser.getChatId(), Locale.getDefault());
+            Lang sorceLang = Lang.valueOf(data.getParams().get("source").asText());
+            SendMessage sendMessage = messageService.setTargetLangMessage(botUser.getChatId(), Locale.getDefault(), sorceLang);
             translateBot.execute(sendMessage);
             translateBot.execute(callbackAnswerService.getCallbackAnswer(update.getCallbackQuery().getId()));
         } else {
