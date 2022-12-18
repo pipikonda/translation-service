@@ -9,6 +9,7 @@ import com.pipikonda.translationbot.telegram.dto.GetSettingsInfoDto;
 import com.pipikonda.translationbot.telegram.view.CallbackAnswerService;
 import com.pipikonda.translationbot.telegram.view.MessageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -25,6 +26,7 @@ public class UserSettingsHandler implements CommandHandler {
     private final MessageService messageService;
     private final TimePeriodService timePeriodService;
     private final CallbackAnswerService callbackAnswerService;
+    private final MessageSource messageSource;
 
     @Override
     public void handleCommand(Update update, BotUser botUser, CallbackDataDto data) throws TelegramApiException {
@@ -33,8 +35,8 @@ public class UserSettingsHandler implements CommandHandler {
                 .map(e -> e.getStartTime() + " - " + e.getEndTime())
                 .collect(Collectors.joining("\n"));
         Object[] params = new Object[]{
-                "telegram.emoji.langs." + botUser.getSourceLang(),
-                "telegram.emoji.langs." + botUser.getTargetLang(),
+                messageSource.getMessage("telegram.emoji.langs." + botUser.getSourceLang(), null, Locale.getDefault()),
+                messageSource.getMessage("telegram.emoji.langs." + botUser.getTargetLang(), null, Locale.getDefault()),
                 periods
         };
         GetSettingsInfoDto dto = GetSettingsInfoDto.builder()

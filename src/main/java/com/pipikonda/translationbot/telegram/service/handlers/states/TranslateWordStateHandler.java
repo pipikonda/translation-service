@@ -9,6 +9,7 @@ import com.pipikonda.translationbot.telegram.TranslateBot;
 import com.pipikonda.translationbot.telegram.dto.GetMessageBotRequestDto;
 import com.pipikonda.translationbot.telegram.view.MessageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -26,6 +27,7 @@ public class TranslateWordStateHandler implements UserStateHandler {
     private final TranslateBot translateBot;
     private final MessageService messageService;
     private final BotUserService botUserService;
+    private final MessageSource messageSource;
 
     @Override
     public void handle(BotUser botUser, String messageText) throws TelegramApiException {
@@ -43,8 +45,8 @@ public class TranslateWordStateHandler implements UserStateHandler {
 
         String[] params = new String[]{dto.getWord(),
                 String.join("\n", translations),
-                "telegram.emoji.langs." + botUser.getSourceLang(),
-                "telegram.emoji.langs." + botUser.getTargetLang()};
+                messageSource.getMessage("telegram.emoji.langs." + botUser.getSourceLang(), null, Locale.getDefault()),
+                messageSource.getMessage("telegram.emoji.langs." + botUser.getTargetLang(), null, Locale.getDefault())};
         GetMessageBotRequestDto botRequestDto = GetMessageBotRequestDto.builder()
                 .userLocale(Locale.getDefault())
                 .chatId(botUser.getChatId())

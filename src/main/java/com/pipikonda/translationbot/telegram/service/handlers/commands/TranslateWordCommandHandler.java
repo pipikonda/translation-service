@@ -10,6 +10,7 @@ import com.pipikonda.translationbot.telegram.view.CallbackAnswerService;
 import com.pipikonda.translationbot.telegram.view.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -27,6 +28,7 @@ public class TranslateWordCommandHandler implements CommandHandler {
     private final TranslateBot translateBot;
     private final MessageService messageService;
     private final CallbackAnswerService callbackAnswerService;
+    private final MessageSource messageSource;
 
     @Override
     public void handleCommand(Update update, BotUser botUser, CallbackDataDto data) throws TelegramApiException {
@@ -35,8 +37,8 @@ public class TranslateWordCommandHandler implements CommandHandler {
                 .lastStateChanged(Instant.now())
                 .build();
         String[] params = new String[]{
-                "telegram.emoji.langs." + botUser.getSourceLang(),
-                "telegram.emoji.langs." + botUser.getTargetLang()
+                messageSource.getMessage("telegram.emoji.langs." + botUser.getSourceLang(), null, Locale.getDefault()),
+                messageSource.getMessage("telegram.emoji.langs." + botUser.getTargetLang(), null, Locale.getDefault())
         };
         GetMessageBotRequestDto dto = GetMessageBotRequestDto.builder()
                 .userLocale(Locale.getDefault())
