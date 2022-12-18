@@ -193,7 +193,7 @@ public class WordTranslationRepositoryTest extends TestContainerBaseClass {
                 .targetLang(Lang.RU)
                 .build());
 
-        assertThat(instance.getRandomWord(List.of(wordTranslation.getId()), Lang.RU)).isEmpty();
+        assertThat(instance.getRandomWord(List.of(wordTranslation.getId()), Lang.RU, Lang.EN)).isEmpty();
     }
 
     @Test
@@ -205,6 +205,6 @@ public class WordTranslationRepositoryTest extends TestContainerBaseClass {
                 .targetLang(Lang.EN)
                 .build());
 
-        assertThat(instance.getRandomWord(List.of(-1L), Lang.EN)).isEmpty();
+        assertThat(instance.getRandomWord(List.of(-1L), Lang.EN, Lang.UK)).isEmpty();
     }
 }

@@ -122,11 +122,11 @@ public class WordService {
     }
 
     @Transactional
-    public SendMessage getRandomWordPoll(BotUser botUser, Lang sourceLang) {
+    public SendMessage getRandomWordPoll(BotUser botUser, Lang sourceLang, Lang targetLang) {
         String userId = String.valueOf(botUser.getId());
         List<Long> userWordTranslations = repeatService.getUserWordTranslations(userId);
         log.info("User word translations is {}", userWordTranslations);
-        WordTranslation wordTranslation = wordTranslationRepository.getRandomWord(userWordTranslations, sourceLang)
+        WordTranslation wordTranslation = wordTranslationRepository.getRandomWord(userWordTranslations, sourceLang, targetLang)
                 .orElseThrow(() -> new ClientErrorException(ErrorCode.NOT_FOUND, "Not found new words for you"));
         Repeat newRepeat = repeatService.createNewRepeat(CreateRepeatDto.builder()
                 .wordTranslationId(wordTranslation.getId())
