@@ -1,7 +1,6 @@
 package com.pipikonda.translationbot.telegram.service.handlers.commands;
 
 import com.pipikonda.translationbot.domain.BotUser;
-import com.pipikonda.translationbot.domain.Lang;
 import com.pipikonda.translationbot.error.ClientErrorException;
 import com.pipikonda.translationbot.service.WordService;
 import com.pipikonda.translationbot.telegram.TranslateBot;
@@ -31,7 +30,7 @@ public class GetRandomWordHandler implements CommandHandler {
     public void handleCommand(Update update, BotUser botUser, CallbackDataDto data) throws TelegramApiException {
         SendMessage randomWordPoll;
         try {
-            randomWordPoll = wordService.getRandomWordPoll(botUser, Lang.EN);
+            randomWordPoll = wordService.getRandomWordPoll(botUser, botUser.getSourceLang());
             translateBot.execute(randomWordPoll);
         } catch (ClientErrorException exception) {
             translateBot.execute(messageService.getMessageWithBackKeyboard(GetMessageBotRequestDto.builder()

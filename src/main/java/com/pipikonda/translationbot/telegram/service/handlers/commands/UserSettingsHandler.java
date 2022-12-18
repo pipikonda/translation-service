@@ -1,7 +1,6 @@
 package com.pipikonda.translationbot.telegram.service.handlers.commands;
 
 import com.pipikonda.translationbot.domain.BotUser;
-import com.pipikonda.translationbot.domain.TimePeriod;
 import com.pipikonda.translationbot.service.TimePeriodService;
 import com.pipikonda.translationbot.telegram.TranslateBot;
 import com.pipikonda.translationbot.telegram.dto.CallbackDataCommand;
@@ -15,7 +14,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
@@ -34,7 +32,11 @@ public class UserSettingsHandler implements CommandHandler {
                 .stream()
                 .map(e -> e.getStartTime() + " - " + e.getEndTime())
                 .collect(Collectors.joining("\n"));
-        Object[] params = new Object[]{botUser.getSourceLang(), botUser.getTargetLang(), periods};
+        Object[] params = new Object[]{
+                "telegram.emoji.langs." + botUser.getSourceLang(),
+                "telegram.emoji.langs." + botUser.getTargetLang(),
+                periods
+        };
         GetSettingsInfoDto dto = GetSettingsInfoDto.builder()
                 .userLocale(Locale.getDefault())
                 .chatId(botUser.getChatId())
