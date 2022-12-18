@@ -75,9 +75,7 @@ public class RepeatAttemptService {
     }
 
     @Transactional
-    public RepeatAttemptDto createRepeatAttempt(Long repeatId) {
-        Repeat repeat = repeatRepository.findById(repeatId)
-                .orElseThrow(() -> new BasicLogicException(ErrorCode.NOT_FOUND, "Not found repeat by id " + repeatId));
+    public RepeatAttemptDto createRepeatAttempt(Repeat repeat) {
         repeatRepository.save(repeat.toBuilder()
                 .nextRepeat(getNextRepeatTime(repeat.getId()))
                 .lastRepeat(Instant.now())

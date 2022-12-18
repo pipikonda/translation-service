@@ -37,7 +37,8 @@ public class RepeatController {
 
     @PostMapping("/api/user/repeat/attempt")
     public Response<RepeatAttemptDto> createRepeatAttempt(@Valid @RequestBody CreateRepeatAttemptDto dto) {
-        return new Response<>(repeatAttemptService.createRepeatAttempt(dto.getRepeatId()));
+        Repeat repeat = repeatService.findById(dto.getRepeatId());
+        return new Response<>(repeatAttemptService.createRepeatAttempt(repeat));
     }
 
     @PostMapping("/api/user/repeat/attempt/answer")

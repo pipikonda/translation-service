@@ -133,7 +133,7 @@ public class WordService {
                 .userId(userId)
                 .build());
 
-        return repeatService.getRepeat(botUser, newRepeat.getId());
+        return repeatService.getRepeat(botUser, newRepeat);
 
 
     }

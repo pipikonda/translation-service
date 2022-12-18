@@ -57,20 +57,13 @@ class RepeatAttemptServiceTest extends TestContainerBaseClass {
     }
 
     @Test
-    void createRepeatAttempt_shouldThrowException_whenRepeatIdIsNotExists() {
-        assertThatExceptionOfType(BasicLogicException.class)
-                .isThrownBy(() -> instance.createRepeatAttempt(233L))
-                .withMessage("Not found repeat by id " + 233);
-    }
-
-    @Test
     void createRepeatAttempt_shouldThrowException_whenRepeatWordTranslationIsNotExists() {
         Repeat repeat = repeatRepository.save(Repeat.builder()
                 .wordTranslationId(555L)
                 .userId("some user id")
                 .build());
         assertThatExceptionOfType(BasicLogicException.class)
-                .isThrownBy(() -> instance.createRepeatAttempt(repeat.getId()))
+                .isThrownBy(() -> instance.createRepeatAttempt(repeat))
                 .withMessage("Not found wordTranslation when expected");
     }
 
@@ -88,7 +81,7 @@ class RepeatAttemptServiceTest extends TestContainerBaseClass {
                 .userId("some user id")
                 .build());
         assertThatExceptionOfType(BasicLogicException.class)
-                .isThrownBy(() -> instance.createRepeatAttempt(repeat.getId()))
+                .isThrownBy(() -> instance.createRepeatAttempt(repeat))
                 .withMessage("Not found correct translation for source translation id " + 23);
     }
 
@@ -127,7 +120,7 @@ class RepeatAttemptServiceTest extends TestContainerBaseClass {
                 .userId("some user id")
                 .build());
 
-        RepeatAttemptDto repeatAttempt = instance.createRepeatAttempt(repeat.getId());
+        RepeatAttemptDto repeatAttempt = instance.createRepeatAttempt(repeat);
 
         System.out.println("====> " + repeatAttempt.getValues());
         Optional<RepeatAttempt> attempt = repeatAttemptRepository.findAll().stream().findFirst();

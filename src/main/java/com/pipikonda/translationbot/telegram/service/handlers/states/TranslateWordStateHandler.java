@@ -2,12 +2,11 @@ package com.pipikonda.translationbot.telegram.service.handlers.states;
 
 import com.pipikonda.translationbot.controller.dto.CreateWordDto;
 import com.pipikonda.translationbot.domain.BotUser;
-import com.pipikonda.translationbot.domain.Lang;
 import com.pipikonda.translationbot.domain.Translation;
+import com.pipikonda.translationbot.service.BotUserService;
 import com.pipikonda.translationbot.service.WordService;
 import com.pipikonda.translationbot.telegram.TranslateBot;
 import com.pipikonda.translationbot.telegram.dto.GetMessageBotRequestDto;
-import com.pipikonda.translationbot.service.BotUserService;
 import com.pipikonda.translationbot.telegram.view.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,10 +41,14 @@ public class TranslateWordStateHandler implements UserStateHandler {
                 .map(StringUtils::capitalize)
                 .toList();
 
+        String[] params = new String[]{dto.getWord(),
+                String.join("\n", translations),
+                "telegram.emoji.langs." + botUser.getSourceLang(),
+                "telegram.emoji.langs." + botUser.getTargetLang()};
         GetMessageBotRequestDto botRequestDto = GetMessageBotRequestDto.builder()
                 .userLocale(Locale.getDefault())
                 .chatId(botUser.getChatId())
-                .params(new String[]{dto.getWord(), String.join("\n", translations), Lang.EN.name(), Lang.RU.name()})
+                .params(params)
                 .messagePattern("telegram.message-text.translate-word-result")
                 .build();
         SendMessage message = messageService.getMessageWithBackKeyboard(botRequestDto);

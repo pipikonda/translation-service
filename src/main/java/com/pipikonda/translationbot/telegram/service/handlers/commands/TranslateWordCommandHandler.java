@@ -1,12 +1,11 @@
 package com.pipikonda.translationbot.telegram.service.handlers.commands;
 
 import com.pipikonda.translationbot.domain.BotUser;
-import com.pipikonda.translationbot.domain.Lang;
+import com.pipikonda.translationbot.service.BotUserService;
 import com.pipikonda.translationbot.telegram.TranslateBot;
 import com.pipikonda.translationbot.telegram.dto.CallbackDataCommand;
 import com.pipikonda.translationbot.telegram.dto.CallbackDataDto;
 import com.pipikonda.translationbot.telegram.dto.GetMessageBotRequestDto;
-import com.pipikonda.translationbot.service.BotUserService;
 import com.pipikonda.translationbot.telegram.view.CallbackAnswerService;
 import com.pipikonda.translationbot.telegram.view.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -30,16 +29,20 @@ public class TranslateWordCommandHandler implements CommandHandler {
     private final CallbackAnswerService callbackAnswerService;
 
     @Override
-    public void handleCommand(Update update,BotUser botUser, CallbackDataDto data) throws TelegramApiException {
+    public void handleCommand(Update update, BotUser botUser, CallbackDataDto data) throws TelegramApiException {
         botUser = botUser.toBuilder()
                 .userState(BotUser.UserState.TRANSLATE_WORD)
                 .lastStateChanged(Instant.now())
                 .build();
+        String[] params = new String[]{
+                "telegram.emoji.langs." + botUser.getSourceLang(),
+                "telegram.emoji.langs." + botUser.getTargetLang()
+        };
         GetMessageBotRequestDto dto = GetMessageBotRequestDto.builder()
                 .userLocale(Locale.getDefault())
                 .chatId(botUser.getChatId())
                 .messagePattern("telegram.message-text.translate-word")
-                .params(new Object[]{Lang.EN.name(), Lang.RU.name()})
+                .params(params)
                 .build();
         SendMessage message = messageService.getMessageWithBackKeyboard(dto);
         translateBot.execute(message);
