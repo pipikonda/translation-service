@@ -90,7 +90,7 @@ public class RepeatService {
     }
 
     private boolean checkRepeatLangs(Repeat repeat, BotUser botUser) {
-        WordTranslation wordTranslation = wordTranslationRepository.findById(repeat.getId())
+        WordTranslation wordTranslation = wordTranslationRepository.findById(repeat.getWordTranslationId())
                 .orElseThrow(() -> new BasicLogicException(ErrorCode.UNKNOWN_ERROR, "Not found wordTranslation when expected"));
         return wordTranslation.getTargetLang() == botUser.getTargetLang() &&
                 wordTranslation.getSourceLang() == botUser.getSourceLang();
