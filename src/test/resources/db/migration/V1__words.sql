@@ -67,3 +67,5 @@ create table time_periods
 );
 
 create index time_periods_user_index on time_periods (user_id);
+
+alter table repeat_attempts add column created timestamp;

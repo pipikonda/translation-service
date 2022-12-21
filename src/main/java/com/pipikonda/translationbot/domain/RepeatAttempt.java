@@ -33,4 +33,5 @@ public class RepeatAttempt {
     @Enumerated(EnumType.STRING)
     private RepeatType repeatType;
     private Long userAnswerId;
+    private Instant created;
 }

@@ -79,11 +79,13 @@ public class RepeatService {
                 .orElseThrow(() -> new BasicLogicException(ErrorCode.NOT_FOUND, "Not found user by id " + repeat.getUserId() + " when expected"));
         List<TimePeriod> periods = timePeriodService.findByUserId(botUser.getId());
         boolean isTimeQuite = timePeriodService.checkTimeBetween(periods, LocalTime.now());
-        if (isTimeQuite && checkRepeatLangs(repeat, botUser)) {
+        boolean needRepeatAttempt = repeatAttemptService.needRepeatAttempt(repeat.getId());
+        if (!isTimeQuite && checkRepeatLangs(repeat, botUser) && needRepeatAttempt) {
             SendMessage poll = getRepeat(botUser, repeat);
             translateBot.execute(poll);
         } else {
-            log.info("Don't send poll to user. RepeatId - {} quite periods - {}", repeat.getId(), periods);
+            log.info("Don't send poll to user. RepeatId - {} quite periods - {}, need repeat attempt is {}",
+                    repeat.getId(), periods, needRepeatAttempt);
         }
     }
 

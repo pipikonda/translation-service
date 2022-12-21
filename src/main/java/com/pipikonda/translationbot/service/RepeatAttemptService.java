@@ -88,7 +88,9 @@ public class RepeatAttemptService {
                         Optional.ofNullable(attemptNumber)
                                 .map(e -> ++e)
                                 .orElse(1)
-                ).build());
+                )
+                .created(Instant.now())
+                .build());
 
         WordTranslation wordTranslation = wordTranslationRepository.findByIdAndUserId(repeat.getWordTranslationId(), repeat.getUserId())
                 .orElseThrow(() -> new BasicLogicException(ErrorCode.UNKNOWN_ERROR, "Not found wordTranslation when expected"));
@@ -156,5 +158,12 @@ public class RepeatAttemptService {
         long successAttemptCount = repeatAttemptRepository.countByRepeatIdAndIsSuccessIsTrue(repeatId);
         long delay = (long) (baseRepeatInterval * Math.pow(2, successAttemptCount));
         return Instant.now().plus(delay, repeatIntervalUnit);
+    }
+
+    public boolean needRepeatAttempt(Long repeatId) {
+        return repeatAttemptRepository.findLastRepeatAttempt(repeatId)
+                .filter(e -> e.getUserAnswerId() == null)
+                .filter(e -> Instant.now().minus(1, ChronoUnit.DAYS).isBefore(e.getCreated()))
+                .isEmpty();
     }
 }

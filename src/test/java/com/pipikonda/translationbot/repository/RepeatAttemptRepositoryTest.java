@@ -129,4 +129,23 @@ public class RepeatAttemptRepositoryTest extends TestContainerBaseClass {
                 .build());
         assertThat(instance.findMaxAttemptNumberByRepeatId(4L)).isEqualTo(45);
     }
+
+    @Test
+    void findByRepeatIdOrOrderByIdDesc() {
+        RepeatAttempt attempt1 = instance.save(RepeatAttempt.builder()
+                .repeatId(6L)
+                .attemptNumber(-5)
+                .build());
+        RepeatAttempt attempt2 = instance.save(RepeatAttempt.builder()
+                .repeatId(4L)
+                .attemptNumber(19)
+                .build());
+        RepeatAttempt attempt3 = instance.save(RepeatAttempt.builder()
+                .repeatId(4L)
+                .attemptNumber(23)
+                .build());
+
+        assertThat(instance.findLastRepeatAttempt(4L)).isPresent()
+                .hasValueSatisfying(e -> assertThat(e).isEqualTo(attempt3));
+    }
 }

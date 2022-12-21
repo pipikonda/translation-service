@@ -20,6 +20,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -123,13 +125,53 @@ class RepeatAttemptServiceTest extends TestContainerBaseClass {
         RepeatAttemptDto repeatAttempt = instance.createRepeatAttempt(repeat);
 
         System.out.println("====> " + repeatAttempt.getValues());
-        Optional<RepeatAttempt> attempt = repeatAttemptRepository.findAll().stream().findFirst();
+        Optional<RepeatAttempt> attempt = repeatAttemptRepository.findAll().stream().peek(e -> System.out.println("===== >>> " + e)).findFirst();
         assertThat(attempt).isPresent()
-                .hasValueSatisfying(e -> assertThat(e.getId()).isEqualTo(repeat.getId()));
+                .hasValueSatisfying(e -> assertThat(e.getRepeatId()).isEqualTo(repeat.getId()));
         assertThat(repeatAttempt.getValues()).contains(OptionDto.builder()
                 .value("dog")
                 .answerId(translation4.getId())
                 .build());
         assertThat(repeatAttempt.getValues().size()).isEqualTo(2);
+    }
+
+    @Test
+    void testNeedRepeatAttempt_shouldReturnTrue_whenAttemptIsNotFound() {
+        RepeatAttempt repeatAttempt = repeatAttemptRepository.save(RepeatAttempt.builder()
+                .repeatId(12L)
+                .build());
+
+        assertThat(instance.needRepeatAttempt(666L)).isTrue();
+    }
+
+    @Test
+    void testNeedRepeatAttempt_shouldReturnTrue_whenAttemptHasUserAnswer() {
+        RepeatAttempt repeatAttempt = repeatAttemptRepository.save(RepeatAttempt.builder()
+                .created(Instant.now())
+                .userAnswerId(12L)
+                .repeatId(12L)
+                .build());
+
+        assertThat(instance.needRepeatAttempt(12L)).isTrue();
+    }
+
+    @Test
+    void testNeedRepeatAttempt_shouldReturnTrue_whenCreatedMoreThanDayAgo() {
+        RepeatAttempt repeatAttempt = repeatAttemptRepository.save(RepeatAttempt.builder()
+                .created(Instant.now().minus(2, ChronoUnit.DAYS))
+                .repeatId(12L)
+                .build());
+
+        assertThat(instance.needRepeatAttempt(12L)).isTrue();
+    }
+
+    @Test
+    void testNeedRepeatAttempt_shouldReturnFalse() {
+        RepeatAttempt repeatAttempt = repeatAttemptRepository.save(RepeatAttempt.builder()
+                .created(Instant.now().minus(2, ChronoUnit.HOURS))
+                .repeatId(12L)
+                .build());
+
+        assertThat(instance.needRepeatAttempt(12L)).isFalse();
     }
 }
