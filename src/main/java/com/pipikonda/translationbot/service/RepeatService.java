@@ -84,8 +84,8 @@ public class RepeatService {
             SendMessage poll = getRepeat(botUser, repeat);
             translateBot.execute(poll);
         } else {
-            log.info("Don't send poll to user. RepeatId - {} quite periods - {}, need repeat attempt is {}",
-                    repeat.getId(), periods, needRepeatAttempt);
+            log.info("Don't send poll to user. RepeatId - {} isQuitePeriod - {}, needRepeatAttempt is {}",
+                    repeat.getId(), isTimeQuite, needRepeatAttempt);
         }
     }
 
