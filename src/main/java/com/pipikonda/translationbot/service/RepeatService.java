@@ -80,12 +80,13 @@ public class RepeatService {
         List<TimePeriod> periods = timePeriodService.findByUserId(botUser.getId());
         boolean isTimeQuite = timePeriodService.checkTimeBetween(periods, LocalTime.now());
         boolean needRepeatAttempt = repeatAttemptService.needRepeatAttempt(repeat.getId());
-        if (!isTimeQuite && checkRepeatLangs(repeat, botUser) && needRepeatAttempt) {
+        boolean areLangsEqual = checkRepeatLangs(repeat, botUser);
+        if (!isTimeQuite && areLangsEqual && needRepeatAttempt) {
             SendMessage poll = getRepeat(botUser, repeat);
             translateBot.execute(poll);
         } else {
-            log.info("Don't send poll to user. RepeatId - {} isQuitePeriod - {}, needRepeatAttempt is {}",
-                    repeat.getId(), isTimeQuite, needRepeatAttempt);
+            log.info("Don't send poll to user. RepeatId - {} isQuitePeriod - {}, needRepeatAttempt is {}, langsEqual is {}",
+                    repeat.getId(), isTimeQuite, needRepeatAttempt, areLangsEqual);
         }
     }
 
