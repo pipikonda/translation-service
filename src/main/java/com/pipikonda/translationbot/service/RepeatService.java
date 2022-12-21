@@ -63,7 +63,7 @@ public class RepeatService {
     public void createRepeatAttempts() {
         log.info("Start createRepeatAttempts scheduler, server time is {}", LocalDateTime.now());
         Long repeatId;
-        while ((repeatId = repeatRepository.getNextRepeat(Instant.now())) != null) {
+        while ((repeatId = repeatRepository.getNextRepeat(Instant.now(), Instant.now().plusSeconds(60))) != null) {
             try {
                 sendPoll(repeatId);
             } catch (Exception ex) {
@@ -83,7 +83,7 @@ public class RepeatService {
             SendMessage poll = getRepeat(botUser, repeat);
             translateBot.execute(poll);
         } else {
-            log.info("Don't send poll to user. For user {} quite periods - {}", repeat.getUserId(), periods);
+            log.info("Don't send poll to user. RepeatId - {} quite periods - {}", repeat.getId(), periods);
         }
     }
 

@@ -50,7 +50,7 @@ public class RepeatRepositoryTest extends TestContainerBaseClass {
 
     @Test
     void getNextRepeat_shouldReturnEmpty_whenRepeatIsNotPresent() {
-        assertThat(instance.getNextRepeat(Instant.now())).isNull();
+        assertThat(instance.getNextRepeat(Instant.now(), Instant.now().plusSeconds(60))).isNull();
     }
 
     @Test
@@ -60,7 +60,9 @@ public class RepeatRepositoryTest extends TestContainerBaseClass {
                 .nextRepeat(Instant.now().minusSeconds(60))
                 .wordTranslationId(23L)
                 .build());
-        assertThat(instance.getNextRepeat(Instant.now())).isEqualTo(repeat.getId());
+        assertThat(
+                instance.getNextRepeat(Instant.now(), Instant.now().plusSeconds(10).with(ChronoField.NANO_OF_SECOND, 0))
+        ).isEqualTo(repeat.getId());
     }
 
     @Test
