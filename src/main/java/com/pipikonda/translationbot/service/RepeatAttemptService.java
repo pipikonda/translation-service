@@ -59,6 +59,12 @@ public class RepeatAttemptService {
     public boolean saveAnswer(Long repeatAttemptId, String answer) {
         RepeatAttempt repeatAttempt = repeatAttemptRepository.findById(repeatAttemptId)
                 .orElseThrow(() -> new BasicLogicException(ErrorCode.NOT_FOUND, "Not found repeat attempt with id " + repeatAttemptId));
+        Repeat repeat = repeatRepository.findById(repeatAttempt.getRepeatId())
+                .orElseThrow(() -> new BasicLogicException(ErrorCode.NOT_FOUND, "Not found repeat with id " + repeatAttempt.getRepeatId()));
+        repeatRepository.save(repeat.toBuilder()
+                .nextRepeat(getNextRepeatTime(repeat.getId()))
+                .lastRepeat(Instant.now())
+                .build());
         if (repeatAttempt.getUserAnswerId() != null) {
             throw new BasicLogicException(ErrorCode.BAD_REQUEST, "Attempt " + repeatAttemptId + " already has answer");
         }
@@ -76,10 +82,6 @@ public class RepeatAttemptService {
 
     @Transactional
     public RepeatAttemptDto createRepeatAttempt(Repeat repeat) {
-        repeatRepository.save(repeat.toBuilder()
-                .nextRepeat(getNextRepeatTime(repeat.getId()))
-                .lastRepeat(Instant.now())
-                .build());
         Integer attemptNumber = repeatAttemptRepository.findMaxAttemptNumberByRepeatId(repeat.getId());
         RepeatAttempt repeatAttempt = repeatAttemptRepository.save(RepeatAttempt.builder()
                 .repeatId(repeat.getId())
